@@ -31,8 +31,8 @@ class datei
     function addFolder($parent, $project, $folder, $desc, $visible = "")
     {
         $project = (int) $project;
-        $folder = mysql_real_escape_string($folder);
-        $desc = mysql_real_escape_string($desc);
+        $folder = pg_escape_string($folder);
+        $desc = pg_escape_string($desc);
         if(!empty($visible))
         {
 			$visstr = serialize($visible);
@@ -50,7 +50,7 @@ class datei
         $folder = preg_replace("/\W/", "", $folder);
         $folder = preg_replace("/[^-_0-9a-zA-Z]/", "_", $folder);
         // insert the folder into the db
-        $ins = mysql_query("INSERT INTO projectfolders (parent,project,name,description,visible) VALUES ($parent,$project,'$folder','$desc','$visstr')");
+        $ins = pg_query("INSERT INTO projectfolders (parent,project,name,description,visible) VALUES ($parent,$project,'$folder','$desc','$visstr')");
         if ($ins)
         {
             // create the folder
@@ -101,7 +101,7 @@ class datei
                 $this->deleteFolder($sub["ID"], $sub["project"]);
             }
         }
-        $del = mysql_query("DELETE FROM projectfolders WHERE ID = $id");
+        $del = pg_query("DELETE FROM projectfolders WHERE ID = $id");
         // remove directory
         $foldstr = CL_ROOT . "/files/" . CL_CONFIG . "/$project/" . $folder["name"] . "/";
         delete_directory($foldstr);
@@ -118,8 +118,8 @@ class datei
     function getFolder($id)
     {
         $id = (int) $id;
-        $sel = mysql_query("SELECT * FROM projectfolders WHERE ID = $id LIMIT 1");
-        $folder = mysql_fetch_array($sel);
+        $sel = pg_query("SELECT * FROM projectfolders WHERE ID = $id LIMIT 1");
+        $folder = pg_fetch_array($sel);
         $folder["subfolders"] = $this->getSubFolders($folder["ID"]);
 
         return $folder;
@@ -134,11 +134,11 @@ class datei
     function getSubFolders($parent)
     {
         $parent = (int) $parent;
-        $sel = mysql_query("SELECT * FROM projectfolders WHERE parent = $parent");
+        $sel = pg_query("SELECT * FROM projectfolders WHERE parent = $parent");
 
         $folders = array();
 
-        while ($folder = mysql_fetch_array($sel))
+        while ($folder = pg_fetch_array($sel))
         {
             $folder["subfolders"] = $this->getSubFolders($folder["ID"]);
             array_push($folders, $folder);
@@ -164,10 +164,10 @@ class datei
     {
         $project = (int) $project;
 
-        $sel = mysql_query("SELECT * FROM projectfolders WHERE project = $project AND parent = $parent");
+        $sel = pg_query("SELECT * FROM projectfolders WHERE project = $project AND parent = $parent");
         $folders = array();
 
-        while ($folder = mysql_fetch_array($sel))
+        while ($folder = pg_fetch_array($sel))
         {
             $folder["subfolders"] = $this->getSubFolders($folder["ID"]);
             array_push($folders, $folder);
@@ -193,10 +193,10 @@ class datei
     {
         $project = (int) $project;
 
-        $sel = mysql_query("SELECT * FROM projectfolders WHERE project = $project");
+        $sel = pg_query("SELECT * FROM projectfolders WHERE project = $project");
         $folders = array();
 
-        while ($folder = mysql_fetch_array($sel))
+        while ($folder = pg_fetch_array($sel))
         {
             $folder["subfolders"] = $this->getSubFolders($folder["ID"]);
             array_push($folders, $folder);
@@ -347,15 +347,15 @@ class datei
     function edit($id, $title, $desc, $tags)
     {
         $id = (int) $id;
-        $title = mysql_real_escape_string($title);
-        $desc = mysql_real_escape_string($desc);
-        $tags = mysql_real_escape_string($tags);
+        $title = pg_escape_string($title);
+        $desc = pg_escape_string($desc);
+        $tags = pg_escape_string($tags);
         // get project for logging
-        $sel = mysql_query("SELECT project FROM files WHERE ID = $id");
-        $proj = mysql_fetch_row($sel);
+        $sel = pg_query("SELECT project FROM files WHERE ID = $id");
+        $proj = pg_fetch_row($sel);
         $project = $proj[0];
 
-        $sql = mysql_query("UPDATE files SET `title` = '$title', `desc` = '$desc', `tags` = '$tags' WHERE id = $id");
+        $sql = pg_query("UPDATE files SET title = '$title', desc = '$desc', tags = '$tags' WHERE id = $id");
         if ($sql)
         {
             $this->mylog->add($title, 'datei' , 2, $project);
@@ -377,8 +377,8 @@ class datei
     {
         $datei = (int) $datei;
 
-        $sel1 = mysql_query("SELECT datei,name,project,title FROM files WHERE ID = $datei");
-        $thisfile = mysql_fetch_row($sel1);
+        $sel1 = pg_query("SELECT datei,name,project,title FROM files WHERE ID = $datei");
+        $thisfile = pg_fetch_row($sel1);
         if (!empty($thisfile))
         {
             $fname = $thisfile[1];
@@ -392,8 +392,8 @@ class datei
             {
                 return false;
             }
-            $del = mysql_query("DELETE FROM files WHERE ID = $datei");
-            $del2 = mysql_query("DELETE FROM files_attached WHERE file = $datei");
+            $del = pg_query("DELETE FROM files WHERE ID = $datei");
+            $del2 = pg_query("DELETE FROM files_attached WHERE file = $datei");
             if ($del)
             {
                 if (unlink($delfile))
@@ -423,9 +423,9 @@ class datei
     function getFile($id)
     {
         $id = (int) $id;
-        // get the file from MySQL
-        $sel = mysql_query("SELECT * FROM files WHERE ID=$id");
-        $file = mysql_fetch_array($sel);
+        // get the file from PostgreSQL
+        $sel = pg_query("SELECT * FROM files WHERE ID=$id");
+        $file = pg_fetch_array($sel);
 
         if (!empty($file))
         {
@@ -494,7 +494,7 @@ class datei
         $targetstr = "files/" . CL_CONFIG . "/" . $thefile["project"] . "/" . $thefolder["name"] . "/" . $thefile["name"];
         $rootstr = CL_ROOT . "/" . $thefile["datei"];
         // update database
-        $upd = mysql_query("UPDATE files SET datei = '$targetstr', folder = '$thefolder[ID]' WHERE ID = $thefile[ID]");
+        $upd = pg_query("UPDATE files SET datei = '$targetstr', folder = '$thefolder[ID]' WHERE ID = $thefile[ID]");
         // move the file physically
         return rename($rootstr, $targetstr);
     }
@@ -516,13 +516,13 @@ class datei
         if ($folder > 0)
         {
             $fold = "files/" . CL_CONFIG . "/$id/$folder/";
-            $sel = mysql_query("SELECT COUNT(*) FROM files WHERE project = $id AND folder = $folder ORDER BY ID DESC");
+            $sel = pg_query("SELECT COUNT(*) FROM files WHERE project = $id AND folder = $folder ORDER BY ID DESC");
         }
         else
         {
-            $sel = mysql_query("SELECT COUNT(*) FROM files WHERE project = $id AND folder = 0 ORDER BY ID DESC");
+            $sel = pg_query("SELECT COUNT(*) FROM files WHERE project = $id AND folder = 0 ORDER BY ID DESC");
         }
-        $num = mysql_fetch_row($sel);
+        $num = pg_fetch_row($sel);
         $num = $num[0];
         SmartyPaginate::connect();
         // set items per page
@@ -537,13 +537,13 @@ class datei
         if ($folder > 0)
         {
             $sql = "SELECT ID FROM files WHERE project = $id AND folder = $folder ORDER BY  ID DESC LIMIT $start,$lim";
-            $sel2 = mysql_query($sql);
+            $sel2 = pg_query($sql);
         }
         else
         {
-            $sel2 = mysql_query("SELECT ID FROM files WHERE project = $id AND folder = 0 ORDER BY  ID DESC LIMIT $start,$lim");
+            $sel2 = pg_query("SELECT ID FROM files WHERE project = $id AND folder = 0 ORDER BY  ID DESC LIMIT $start,$lim");
         }
-        while ($file = mysql_fetch_array($sel2))
+        while ($file = pg_fetch_array($sel2))
         {
             if (!empty($file))
             {
@@ -577,9 +577,9 @@ class datei
 
         $files = array();
 
-        $sel2 = mysql_query("SELECT ID FROM files WHERE project = $id  ORDER BY  ID DESC");
+        $sel2 = pg_query("SELECT ID FROM files WHERE project = $id  ORDER BY  ID DESC");
 
-        while ($file = mysql_fetch_array($sel2))
+        while ($file = pg_fetch_array($sel2))
         {
             if (!empty($file))
             {
@@ -625,19 +625,19 @@ class datei
      */
     private function add_file($name, $desc, $project, $milestone, $tags, $datei, $type, $title, $folder = 0, $visstr = "")
     {
-        $name = mysql_real_escape_string($name);
-        $desc = mysql_real_escape_string($desc);
-        $tags = mysql_real_escape_string($tags);
-        $datei = mysql_real_escape_string($datei);
+        $name = pg_escape_string($name);
+        $desc = pg_escape_string($desc);
+        $tags = pg_escape_string($tags);
+        $datei = pg_escape_string($datei);
         $project = (int) $project;
         $milestone = (int) $milestone;
         $folder = (int) $folder;
         $userid = $_SESSION["userid"];
-        $type = mysql_real_escape_string($type);
-        $title = mysql_real_escape_string($title);
+        $type = pg_escape_string($type);
+        $title = pg_escape_string($title);
         $now = time();
 
-        $ins = mysql_query("INSERT INTO files (`name`,`desc`,`project`,`milestone`,`user`,`tags`,`added`,`datei`,`type`,`title`,`folder`,`visible`) VALUES ('$name','$desc',$project,$milestone,$userid,'$tags','$now','$datei','$type','$title','$folder','$visstr')");
+        $ins = pg_query("INSERT INTO files (name,desc,project,milestone,user,tags,added,datei,type,title,folder,visible) VALUES ('$name','$desc',$project,$milestone,$userid,'$tags','$now','$datei','$type','$title','$folder','$visstr')");
 
         if ($ins)
         {

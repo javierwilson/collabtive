@@ -1,0 +1,1 @@
+* Cambiar los mysql_insert_id por SELECT curval('foo');

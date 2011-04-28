@@ -32,7 +32,7 @@ class roles
      */
     function add($name, array $projects, array $tasks, array $milestones, array $messages, array $files, array $timetracker, array $chat, array $admin)
     {
-        $name = mysql_real_escape_string($name);
+        $name = pg_escape_string($name);
         $projects = serialize($projects);
         $tasks = serialize($tasks);
         $milestones = serialize($milestones);
@@ -42,7 +42,7 @@ class roles
         $chat = serialize($chat);
         $admin = serialize($admin);
 
-        $ins = mysql_query("INSERT INTO roles (name,projects,tasks,milestones,messages,files,timetracker,chat,admin) VALUES ('$name','$projects','$tasks','$milestones','$messages','$files','$timetracker','$chat','$admin')");
+        $ins = pg_query("INSERT INTO roles (name,projects,tasks,milestones,messages,files,timetracker,chat,admin) VALUES ('$name','$projects','$tasks','$milestones','$messages','$files','$timetracker','$chat','$admin')");
 
         if ($ins)
         {
@@ -74,7 +74,7 @@ class roles
     function edit($id, $name, array $projects, array $tasks, array $milestones, array $messages, array $files, array $timetracker, array $chat, array $admin)
     {
         $id = (int) $id;
-        $name = mysql_real_escape_string($name);
+        $name = pg_escape_string($name);
         $projects = serialize($projects);
         $tasks = serialize($tasks);
         $milestones = serialize($milestones);
@@ -84,7 +84,7 @@ class roles
         $chat = serialize($chat);
         $admin = serialize($admin);
 
-        $upd = mysql_query("UPDATE roles SET name='$name',projects='$projects',tasks='$tasks',milestones='$milestones',messages='$messages',files='$files',timetracker='$timetracker',chat='$chat',admin='$admin' WHERE ID = $id");
+        $upd = pg_query("UPDATE roles SET name='$name',projects='$projects',tasks='$tasks',milestones='$milestones',messages='$messages',files='$files',timetracker='$timetracker',chat='$chat',admin='$admin' WHERE ID = $id");
 
         if ($upd)
         {
@@ -107,8 +107,8 @@ class roles
     function del($id)
     {
         $id = (int) $id;
-        $del = mysql_query("DELETE FROM roles WHERE ID = $id");
-        $del2 = mysql_query("DELETE FROM roles_assigned WHERE role = $id");
+        $del = pg_query("DELETE FROM roles WHERE ID = $id");
+        $del2 = pg_query("DELETE FROM roles_assigned WHERE role = $id");
 
         if ($del)
         {
@@ -133,18 +133,18 @@ class roles
         $role = (int) $role;
         $user = (int) $user;
         // get the number of roles already assigned to $user
-        $chk = mysql_query("SELECT COUNT(*) FROM roles_assigned WHERE user = $user");
-        $chk = mysql_fetch_row($chk);
+        $chk = pg_query("SELECT COUNT(*) FROM roles_assigned WHERE user = $user");
+        $chk = pg_fetch_row($chk);
         $chk = $chk[0];
         // If there already is a role assigned to the user, just update this entry
         // Otherwise create a new entry
         if ($chk > 0)
         {
-            $ins = mysql_query("UPDATE roles_assigned SET role = $role WHERE user = $user");
+            $ins = pg_query("UPDATE roles_assigned SET role = $role WHERE user = $user");
         }
         else
         {
-            $ins = mysql_query("INSERT INTO roles_assigned (user,role) VALUES ($user,$role)");
+            $ins = pg_query("INSERT INTO roles_assigned (user,role) VALUES ($user,$role)");
         }
 
         if ($ins)
@@ -170,7 +170,7 @@ class roles
         $role = (int) $role;
         $user = (int) $user;
 
-        $del = mysql_query("DELETE FROM roles_assigned WHERE user = $user AND role = $role LIMIT 1");
+        $del = pg_query("DELETE FROM roles_assigned WHERE user = $user AND role = $role LIMIT 1");
 
         if ($del)
         {
@@ -194,13 +194,13 @@ class roles
 
         if (!$limit)
         {
-            $sel = mysql_query("SELECT ID FROM roles ORDER BY ID DESC");
+            $sel = pg_query("SELECT ID FROM roles ORDER BY ID DESC");
         }
         else
         {
-            $sel = mysql_query("SELECT ID FROM roles ORDER BY ID DESC LIMIT $limit");
+            $sel = pg_query("SELECT ID FROM roles ORDER BY ID DESC LIMIT $limit");
         }
-        while ($role = mysql_fetch_array($sel, MYSQL_ASSOC))
+        while ($role = pg_fetch_array($sel, PGSQL_ASSOC))
         {
             /**
              * $role["projects"] = unserialize($role["projects"]);
@@ -251,8 +251,8 @@ class roles
     {
         $user = (int) $user;
 
-        $sel = mysql_query("SELECT role FROM roles_assigned WHERE user = $user");
-        $usr = mysql_fetch_row($sel);
+        $sel = pg_query("SELECT role FROM roles_assigned WHERE user = $user");
+        $usr = pg_fetch_row($sel);
         $usr = $usr[0];
         if ($usr)
         {
@@ -314,8 +314,8 @@ class roles
     {
         $role = (int) $role;
 
-        $sel2 = mysql_query("SELECT * FROM roles WHERE ID = $role");
-        $therole = mysql_fetch_array($sel2, MYSQL_ASSOC);
+        $sel2 = pg_query("SELECT * FROM roles WHERE ID = $role");
+        $therole = pg_fetch_array($sel2, PGSQL_ASSOC);
 
         $therole["projects"] = unserialize($therole["projects"]);
         $therole["tasks"] = unserialize($therole["tasks"]);

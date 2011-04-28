@@ -32,11 +32,11 @@ class datenbank
     function connect($db_name, $db_user, $db_pass, $db_host="localhost")
     {
 
-	//mysql
-	//$db = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
+	//postgresql
+	//$db = new PDO("pgsql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
 
-	$conn = mysql_connect($db_host,$db_user,$db_pass);
-        $db_check = mysql_select_db($db_name);
+	$conn = pg_connect("host=$db_host dbname=$dbname user=$db_user password=$db_pass");
+        $db_check = $conn;
         if($db_check)
         {
             return true;
@@ -48,14 +48,14 @@ class datenbank
     }
 
     /*
-     * Wrap mysql_query function
+     * Wrap pg_query function
      *
      * @param string $str SQL search query
      * @return bool
      */
     function query($str)
     {
-    	return mysql_query($str);
+    	return pg_query($str);
     }
 }
 ?>

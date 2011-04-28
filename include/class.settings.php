@@ -27,9 +27,9 @@ class settings
      */
     function getSettings()
     {
-        $sel = mysql_query("SELECT * FROM settings LIMIT 1");
+        $sel = pg_query("SELECT * FROM settings LIMIT 1");
         $settings = array();
-        $settings = mysql_fetch_array($sel);
+        $settings = pg_fetch_array($sel);
 
         if (!empty($settings))
         {
@@ -55,18 +55,18 @@ class settings
      */
     function editSettings($name, $subtitle, $locale, $timezone, $dateformat, $templ, $rssuser, $rsspass)
     {
-        $name = mysql_real_escape_string($name);
-        $subtitle = mysql_real_escape_string($subtitle);
-        $locale = mysql_real_escape_string($locale);
-		$timezone = mysql_real_escape_string($timezone);
-        $dateformat = mysql_real_escape_string($dateformat);
-		$templ = mysql_real_escape_string($templ);
-        $sounds = mysql_real_escape_string($sounds);
-        $rssuser = mysql_real_escape_string($rssuser);
-        $rsspass = mysql_real_escape_string($rsspass);
+        $name = pg_escape_string($name);
+        $subtitle = pg_escape_string($subtitle);
+        $locale = pg_escape_string($locale);
+		$timezone = pg_escape_string($timezone);
+        $dateformat = pg_escape_string($dateformat);
+		$templ = pg_escape_string($templ);
+        $sounds = pg_escape_string($sounds);
+        $rssuser = pg_escape_string($rssuser);
+        $rsspass = pg_escape_string($rsspass);
 
-        $upd = mysql_query("UPDATE settings SET name='$name', subtitle='$subtitle', `locale`='$locale', `timezone`='$timezone', `dateformat`='$dateformat', `template`='$templ', rssuser='$rssuser',rsspass='$rsspass'");
-echo mysql_error();
+        $upd = pg_query("UPDATE settings SET name='$name', subtitle='$subtitle', locale='$locale', timezone='$timezone', dateformat='$dateformat', template='$templ', rssuser='$rssuser',rsspass='$rsspass'");
+echo pg_last_error();
         if ($upd)
         {
             return true;
@@ -92,14 +92,14 @@ echo mysql_error();
 	function editMailsettings($onoff,$mailfrom,$mailfromname,$method,$mailhost,$mailuser,$mailpass)
 	{
 		$onoff = (int) $onoff;
-		$mailfrom = mysql_real_escape_string($mailfrom);
-		$mailfromname = mysql_real_escape_string($mailfromname);
-		$method =  mysql_real_escape_string($method);
-		$mailhost = mysql_real_escape_string($mailhost);
-		$mailuser = mysql_real_escape_string($mailuser);
-		$mailpass = mysql_real_escape_string($mailpass);
+		$mailfrom = pg_escape_string($mailfrom);
+		$mailfromname = pg_escape_string($mailfromname);
+		$method =  pg_escape_string($method);
+		$mailhost = pg_escape_string($mailhost);
+		$mailuser = pg_escape_string($mailuser);
+		$mailpass = pg_escape_string($mailpass);
 
-		$upd = mysql_query("UPDATE settings SET mailnotify=$onoff,mailfrom='$mailfrom',mailfromname='$mailfromname',mailmethod='$method',mailhost='$mailhost',mailuser='$mailuser',mailpass='$mailpass'");
+		$upd = pg_query("UPDATE settings SET mailnotify=$onoff,mailfrom='$mailfrom',mailfromname='$mailfromname',mailmethod='$method',mailhost='$mailhost',mailuser='$mailuser',mailpass='$mailpass'");
 		if($upd)
 		{
 			return true;

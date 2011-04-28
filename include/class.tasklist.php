@@ -34,15 +34,15 @@ class tasklist
      */
     function add_liste($project, $name, $desc, $access = 0, $milestone = 0)
     {
-        $name = mysql_real_escape_string($name);
-        $desc = mysql_real_escape_string($desc);
+        $name = pg_escape_string($name);
+        $desc = pg_escape_string($desc);
         $project = (int) $project;
         $access = (int) $access;
         $milestone = (int) $milestone;
 
         $start = time();
 
-        $ins = mysql_query("INSERT INTO tasklist (`project`,`name`,`desc`,`start`,`status`,`access`,`milestone`) VALUES ($project,'$name','$desc','$start',1,$access,$milestone)");
+        $ins = pg_query("INSERT INTO tasklist (project,name,desc,start,status,access,milestone) VALUES ($project,'$name','$desc','$start',1,$access,$milestone)");
 
         if ($ins)
         {
@@ -67,16 +67,16 @@ class tasklist
      */
     function edit_liste($id, $name, $desc, $milestone)
     {
-        $name = mysql_real_escape_string($name);
-        $desc = mysql_real_escape_string($desc);
+        $name = pg_escape_string($name);
+        $desc = pg_escape_string($desc);
         $id = (int) $id;
         $milestone = (int) $milestone;
 
-        $upd = mysql_query("UPDATE tasklist SET `name`='$name', `desc`='$desc', `milestone`=$milestone WHERE ID = $id");
+        $upd = pg_query("UPDATE tasklist SET name='$name', desc='$desc', milestone=$milestone WHERE ID = $id");
         if ($upd)
         {
-            $sel = mysql_query("SELECT project FROM tasklist WHERE ID = $id");
-            $proj = mysql_fetch_array($sel);
+            $sel = pg_query("SELECT project FROM tasklist WHERE ID = $id");
+            $proj = pg_fetch_array($sel);
             $proj = $proj[0];
 
             $this->mylog->add($name, 'tasklist', 2, $proj);
@@ -98,8 +98,8 @@ class tasklist
     {
         $id = (int) $id;
 
-        $sel = mysql_query("SELECT project, name FROM tasklist WHERE ID = $id");
-        $del = mysql_query("DELETE FROM tasklist WHERE ID = $id LIMIT 1");
+        $sel = pg_query("SELECT project, name FROM tasklist WHERE ID = $id");
+        $del = pg_query("DELETE FROM tasklist WHERE ID = $id LIMIT 1");
         if ($del)
         {
             $tasks1 = $this->getTasksFromList($id);
@@ -119,7 +119,7 @@ class tasklist
                     $taskobj->del($task["ID"]);
                 }
             }
-            $sel1 = mysql_fetch_array($sel);
+            $sel1 = pg_fetch_array($sel);
             $proj = $sel1[0];
             $name = $sel1[1];
             $this->mylog->add($name, 'tasklist', 3, $proj);
@@ -141,12 +141,12 @@ class tasklist
     {
         $id = (int) $id;
 
-        $upd = mysql_query("UPDATE tasklist SET status = 1 WHERE ID = $id");
+        $upd = pg_query("UPDATE tasklist SET status = 1 WHERE ID = $id");
 
         if ($upd)
         {
-            $nam = mysql_query("SELECT project, name FROM tasklist WHERE ID = $id");
-            $nam = mysql_fetch_row($nam);
+            $nam = pg_query("SELECT project, name FROM tasklist WHERE ID = $id");
+            $nam = pg_fetch_row($nam);
             $project = $nam[0];
             $name = $nam[1];
 
@@ -169,14 +169,14 @@ class tasklist
     {
         $id = (int) $id;
 
-        $upd = mysql_query("UPDATE tasklist SET status = 0 WHERE ID = $id");
+        $upd = pg_query("UPDATE tasklist SET status = 0 WHERE ID = $id");
         // Close assigned milestone too, if no other open tasklists are assigned to it
-        $sql = mysql_query("SELECT milestone FROM tasklist WHERE ID = $id");
-        $milestone = mysql_fetch_row($sql);
+        $sql = pg_query("SELECT milestone FROM tasklist WHERE ID = $id");
+        $milestone = pg_fetch_row($sql);
         if ($milestone[0] > 0)
         {
-            $sql2 = mysql_query("SELECT count(*) FROM tasklist WHERE milestone = $milestone[0] AND status = 1");
-            $cou = mysql_fetch_row($sql2);
+            $sql2 = pg_query("SELECT count(*) FROM tasklist WHERE milestone = $milestone[0] AND status = 1");
+            $cou = pg_fetch_row($sql2);
 
             if ($cou[0] == 0)
             {
@@ -196,8 +196,8 @@ class tasklist
         // Log entry
         if ($upd)
         {
-            $nam = mysql_query("SELECT project, name FROM tasklist WHERE ID = $id");
-            $nam = mysql_fetch_row($nam);
+            $nam = pg_query("SELECT project, name FROM tasklist WHERE ID = $id");
+            $nam = pg_fetch_row($nam);
             $project = $nam[0];
             $name = $nam[1];
 
@@ -222,22 +222,22 @@ class tasklist
         $project = (int) $project;
         $status = (int) $status;
 
-        $sel = mysql_query("SELECT * FROM tasklist WHERE project = $project AND status=$status");
+        $sel = pg_query("SELECT * FROM tasklist WHERE project = $project AND status=$status");
         $tasklists = array();
 
         $taskobj = new task();
-        while ($list = mysql_fetch_array($sel))
+        while ($list = pg_fetch_array($sel))
         {
-            $sel2 = mysql_query("SELECT ID FROM tasks WHERE liste = $list[ID] AND status=1 ORDER BY `end` ASC");
+            $sel2 = pg_query("SELECT ID FROM tasks WHERE liste = $list[ID] AND status=1 ORDER BY end ASC");
             $list['tasks'] = array();
-            while ($tasks = mysql_fetch_array($sel2))
+            while ($tasks = pg_fetch_array($sel2))
             {
                 array_push($list['tasks'], $taskobj->getTask($tasks["ID"]));
             }
 
-            $sel3 = mysql_query("SELECT ID FROM tasks WHERE liste = $list[ID] AND status=0 ORDER BY `end` ASC");
+            $sel3 = pg_query("SELECT ID FROM tasks WHERE liste = $list[ID] AND status=0 ORDER BY end ASC");
             $list['oldtasks'] = array();
-            while ($oldtasks = mysql_fetch_array($sel3))
+            while ($oldtasks = pg_fetch_array($sel3))
             {
                 array_push($list['oldtasks'], $taskobj->getTask($oldtasks["ID"]));
             }
@@ -265,8 +265,8 @@ class tasklist
     {
         $id = (int) $id;
 
-        $sel = mysql_query("SELECT * FROM tasklist WHERE ID = $id");
-        $tasklist = mysql_fetch_array($sel);
+        $sel = pg_query("SELECT * FROM tasklist WHERE ID = $id");
+        $tasklist = pg_fetch_array($sel);
 
         if (!empty($tasklist))
         {
@@ -297,9 +297,9 @@ class tasklist
 
         $taskobj = new task();
 
-        $sel = mysql_query("SELECT ID FROM tasks WHERE `liste` = $id AND `status` = $status ORDER BY ID DESC");
+        $sel = pg_query("SELECT ID FROM tasks WHERE liste = $id AND status = $status ORDER BY ID DESC");
         $tasks = array();
-        while ($task = mysql_fetch_array($sel))
+        while ($task = pg_fetch_array($sel))
         {
             array_push($tasks, $taskobj->getTask($task["ID"]));
         }

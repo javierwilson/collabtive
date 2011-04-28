@@ -44,28 +44,28 @@ if ($action == "post")
     }
     $content = $_POST['content'];
     $content = strip_tags($content);
-    $content = mysql_real_escape_string($content);
+    $content = pg_escape_string($content);
 
     $userto = $_POST['userto'];
     $userto_id = $_POST['userto_id'];
-    $userto = mysql_real_escape_string($userto);
+    $userto = pg_escape_string($userto);
     $userto_id = (int) $userto_id;
     // $content = utf8_decode($content);
     $now = time();
 
-    mysql_query("INSERT INTO chat (time,ufrom,ufrom_id,userto,userto_id,text) VALUES ('$now','$username','$userid','$userto','$userto_id','$content')");
+    pg_query("INSERT INTO chat (time,ufrom,ufrom_id,userto,userto_id,text) VALUES ('$now','$username','$userid','$userto','$userto_id','$content')");
 } elseif ($action == "pull")
 {
     $cook = "chatstart" . $userto_id;
     $start = $_COOKIE["$cook"];
-    $start = mysql_real_escape_string($start);
+    $start = pg_escape_string($start);
     if (!$start)
     {
         $start = 0;
     }
 
-    $sel = mysql_query("SELECT * FROM chat WHERE ufrom_id IN($userid,$userto_id) AND userto_id IN($userid,$userto_id) AND time > $start ORDER by time ASC");
-    while ($chat = mysql_fetch_array($sel))
+    $sel = pg_query("SELECT * FROM chat WHERE ufrom_id IN($userid,$userto_id) AND userto_id IN($userid,$userto_id) AND time > $start ORDER by time ASC");
+    while ($chat = pg_fetch_array($sel))
     {
         $date = date("H:i", $chat["time"]);
         echo "[$date] <b>$chat[ufrom]:</b> $chat[text]";
@@ -76,9 +76,9 @@ if ($action == "post")
     $now = time();
     $now = $now - 20;
 
-    $sel = mysql_query("SELECT ufrom_id,ufrom FROM chat WHERE userto_id  = $userid AND time > $now");
+    $sel = pg_query("SELECT ufrom_id,ufrom FROM chat WHERE userto_id  = $userid AND time > $now");
 
-    while ($chk = mysql_fetch_row($sel))
+    while ($chk = pg_fetch_row($sel))
     {
         $cook = "chatwin" . $chk[0];
         if (!$_COOKIE[$cook])
@@ -87,7 +87,7 @@ if ($action == "post")
         }
     }
     $mynow = time();
-    $upd = mysql_query("UPDATE user SET lastlogin='$mynow' WHERE ID = $userid");
+    $upd = pg_query("UPDATE user SET lastlogin='$mynow' WHERE ID = $userid");
 }
 
 ?>

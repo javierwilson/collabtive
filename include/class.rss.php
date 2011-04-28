@@ -43,9 +43,9 @@ $image->descriptionHtmlSyndicated = true;
 $rss->image = $image;
 
 // get your news items from somewhere, e.g. your database:
-mysql_select_db($dbHost, $dbUser, $dbPass);
-$res = mysql_query("SELECT * FROM news ORDER BY newsdate DESC");
-while ($data = mysql_fetch_object($res)) {
+//mysql_select_db($dbHost, $dbUser, $dbPass);
+$res = pg_query("SELECT * FROM news ORDER BY newsdate DESC");
+while ($data = pg_fetch_object($res)) {
     $item = new FeedItem();
     $item->title = $data->title;
     $item->link = $data->url;

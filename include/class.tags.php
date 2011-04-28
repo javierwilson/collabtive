@@ -133,13 +133,13 @@ class tags
     {
         $project = (int) $project;
 
-        $sel1 = mysql_query("SELECT tags FROM files WHERE tags != '' AND project = $project");
-        $sel2 = mysql_query("SELECT tags FROM messages WHERE tags != '' AND project = $project");
+        $sel1 = pg_query("SELECT tags FROM files WHERE tags != '' AND project = $project");
+        $sel2 = pg_query("SELECT tags FROM messages WHERE tags != '' AND project = $project");
 
         $tags1 = array();
         $worktags = "";
 
-        while ($dat = mysql_fetch_row($sel1))
+        while ($dat = pg_fetch_row($sel1))
         {
             $tag = $dat[0];
             $tag = ucfirst($tag);
@@ -148,7 +148,7 @@ class tags
                 $worktags .= $tag . ",";
             }
         }
-        while ($dat = mysql_fetch_row($sel2))
+        while ($dat = pg_fetch_row($sel2))
         {
             $tag = $dat[0];
             $tag = ucfirst($tag);
@@ -175,7 +175,7 @@ class tags
 
         return $thecloud->getCloud();
     }
-    // SELECT * FROM `files` WHERE tags REGEXP ',{0,1}Wort1,{0,1}'
+    // SELECT * FROM files WHERE tags REGEXP ',{0,1}Wort1,{0,1}'
     private function limitcloud($arr)
     {
         if ($arr > $this->cloudlimit)
@@ -189,25 +189,25 @@ class tags
     }
     private function getFiles($query, $project = 0)
     {
-        $query = mysql_real_escape_string($query);
+        $query = pg_escape_string($query);
         $project = (int) $project;
 
         if ($project > 0)
         {
-            $sel = mysql_query("SELECT `ID`,`name`,`desc`,`type`,`datei`,`title`,`project`,`tags` FROM `files` WHERE `tags` LIKE '%$query%' HAVING project = $project");
+            $sel = pg_query("SELECT ID,name,desc,type,datei,title,project,tags FROM files WHERE tags LIKE '%$query%' HAVING project = $project");
         }
         else
         {
-            $sel = mysql_query("SELECT `ID`,`name`,`desc`,`type`,`datei`,`title`,`project`,`tags` FROM `files` WHERE `tags` LIKE '%$query%'");
+            $sel = pg_query("SELECT ID,name,desc,type,datei,title,project,tags FROM files WHERE tags LIKE '%$query%'");
         }
 
         $files = array();
-        while ($result = mysql_fetch_array($sel))
+        while ($result = pg_fetch_array($sel))
         {
             if (!empty($result))
             {
-                $project = mysql_query("SELECT name FROM projekte WHERE ID = $result[project]");
-                $project = mysql_fetch_row($project);
+                $project = pg_query("SELECT name FROM projekte WHERE ID = $result[project]");
+                $project = pg_fetch_row($project);
                 $project = $project[0];
 
                 $result["pname"] = $project;
@@ -256,25 +256,25 @@ class tags
 
     private function getMessages($query, $project = 0)
     {
-        $query = mysql_real_escape_string($query);
+        $query = pg_escape_string($query);
         $project = (int) $project;
 
         if ($project > 0)
         {
-            $sel = mysql_query("SELECT `ID`,`title`,`text`,`posted`,`user`,`username`,`project`,`tags` FROM messages WHERE `tags` LIKE '%$query%'  HAVING project = $project ");
+            $sel = pg_query("SELECT ID,title,text,posted,user,username,project,tags FROM messages WHERE tags LIKE '%$query%'  HAVING project = $project ");
         }
         else
         {
-            $sel = mysql_query("SELECT `ID`,`title`,`text`,`posted`,`user`,`username`,`project`,`tags` FROM messages WHERE `tags` LIKE '%$query%'");
+            $sel = pg_query("SELECT ID,title,text,posted,user,username,project,tags FROM messages WHERE tags LIKE '%$query%'");
         }
 
         $messages = array();
-        while ($result = mysql_fetch_array($sel))
+        while ($result = pg_fetch_array($sel))
         {
             if (!empty($result))
             {
-                $project = mysql_query("SELECT name FROM projekte WHERE ID = $result[project]");
-                $project = mysql_fetch_row($project);
+                $project = pg_query("SELECT name FROM projekte WHERE ID = $result[project]");
+                $project = pg_fetch_row($project);
                 $project = $project[0];
 
                 $result["pname"] = $project;
@@ -306,12 +306,12 @@ class tags
 
     private function getUser($query)
     {
-        $query = mysql_real_escape_string($query);
+        $query = pg_escape_string($query);
 
-        $sel = mysql_query("SELECT `ID`,`email`,`name`,`avatar`,`lastlogin`,`tags` FROM user WHERE tags LIKE '%$query%'");
+        $sel = pg_query("SELECT ID,email,name,avatar,lastlogin,tags FROM user WHERE tags LIKE '%$query%'");
 
         $user = array();
-        while ($result = mysql_fetch_array($sel))
+        while ($result = pg_fetch_array($sel))
         {
             if (!empty($result))
             {

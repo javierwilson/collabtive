@@ -34,14 +34,14 @@ class mylog
         $user = $this->userid;
         $uname = $this->uname;
 
-        $name = mysql_real_escape_string($name);
-        $type = mysql_real_escape_string($type);
+        $name = pg_escape_string($name);
+        $type = pg_escape_string($type);
         $action = (int) $action;
         $project = (int) $project;
 
         $now = time();
 
-        $ins = mysql_query("INSERT INTO log (user,username,name,type,action,project,datum) VALUES ('$user','$uname','$name','$type',$action,$project,'$now')");
+        $ins = pg_query("INSERT INTO log (user,username,name,type,action,project,datum) VALUES ('$user','$uname','$name','$type',$action,$project,'$now')");
         if ($ins)
         {
             $insid = mysql_insert_id();
@@ -63,7 +63,7 @@ class mylog
     {
         $id = (int) $id;
 
-        $del = mysql_query("DELETE FROM log WHERE ID = $id LIMIT 1");
+        $del = pg_query("DELETE FROM log WHERE ID = $id LIMIT 1");
         if ($del)
         {
             return true;
@@ -86,8 +86,8 @@ class mylog
         $project =(int) $project;
         $lim = (int) $lim;
 
-        $sel = mysql_query("SELECT COUNT(*) FROM log WHERE project = $project ");
-		$num = mysql_fetch_row($sel);
+        $sel = pg_query("SELECT COUNT(*) FROM log WHERE project = $project ");
+		$num = pg_fetch_row($sel);
         $num = $num[0];
        	if($num > 200)
        	{
@@ -101,15 +101,15 @@ class mylog
 		$start = SmartyPaginate::getCurrentIndex();
         $lim = SmartyPaginate::getLimit();
         $sql = "SELECT * FROM log WHERE project = $project ORDER BY ID DESC LIMIT $start,$lim";
-		$sel2 = mysql_query($sql);
+		$sel2 = pg_query($sql);
 
         $mylog = array();
-        while ($log = mysql_fetch_array($sel2))
+        while ($log = pg_fetch_array($sel2))
         {
             if (!empty($log))
             {
-                $sel3 = mysql_query("SELECT name FROM projekte WHERE ID = $log[project]");
-                $proname = mysql_fetch_array($sel3);
+                $sel3 = pg_query("SELECT name FROM projekte WHERE ID = $log[project]");
+                $proname = pg_fetch_array($sel3);
                 $proname = $proname[0];
                 $log["proname"] = $proname;
                 $log["proname"] = stripslashes($log["proname"]);
@@ -141,10 +141,10 @@ class mylog
         $user = (int) $user;
         $limit = (int) $limit;
 
-        $sel = mysql_query("SELECT * FROM log WHERE user = $user ORDER BY ID DESC LIMIT $limit");
+        $sel = pg_query("SELECT * FROM log WHERE user = $user ORDER BY ID DESC LIMIT $limit");
 
         $mylog = array();
-        while ($log = mysql_fetch_array($sel))
+        while ($log = pg_fetch_array($sel))
         {
             $log["username"] = stripslashes($log["username"]);
             $log["name"] = stripslashes($log["name"]);
@@ -173,9 +173,9 @@ class mylog
         $limit = (int) $limit;
 
         $mylog = array();
-        $sel3 = mysql_query("SELECT projekt FROM projekte_assigned WHERE user = $userid");
+        $sel3 = pg_query("SELECT projekt FROM projekte_assigned WHERE user = $userid");
         $prstring = "";
-        while ($upro = mysql_fetch_row($sel3))
+        while ($upro = pg_fetch_row($sel3))
         {
             $projekt = $upro[0];
             $prstring .= $projekt . ",";
@@ -185,12 +185,12 @@ class mylog
 
         if ($prstring)
         {
-            $sel = mysql_query("SELECT * FROM log  WHERE project IN($prstring) OR project = 0 ORDER BY ID DESC LIMIT $limit");
+            $sel = pg_query("SELECT * FROM log  WHERE project IN($prstring) OR project = 0 ORDER BY ID DESC LIMIT $limit");
 
-            while ($log = mysql_fetch_array($sel))
+            while ($log = pg_fetch_array($sel))
             {
-                $sel2 = mysql_query("SELECT name FROM projekte WHERE ID = $log[project]");
-                $proname = mysql_fetch_array($sel2);
+                $sel2 = pg_query("SELECT name FROM projekte WHERE ID = $log[project]");
+                $proname = pg_fetch_array($sel2);
                 $proname = $proname[0];
                 $log["proname"] = $proname;
                 $log["proname"] = stripslashes($log["proname"]);

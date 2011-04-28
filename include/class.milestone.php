@@ -36,13 +36,13 @@ class milestone
     function add($project, $name, $desc, $end, $status)
     {
         $project = (int) $project;
-        $name = mysql_real_escape_string($name);
-        $desc = mysql_real_escape_string($desc);
+        $name = pg_escape_string($name);
+        $desc = pg_escape_string($desc);
         $start = time();
         $end = strtotime($end);
         $status = (int) $status;
 
-        $ins = mysql_query("INSERT INTO milestones (`project`,`name`,`desc`,`start`,`end`,`status`) VALUES ($project,'$name','$desc','$start','$end',$status)");
+        $ins = pg_query("INSERT INTO milestones (project,name,desc,start,end,status) VALUES ($project,'$name','$desc','$start','$end',$status)");
 
         if ($ins)
         {
@@ -68,15 +68,15 @@ class milestone
     function edit($id, $name, $desc, $end)
     {
         $id = (int) $id;
-        $name = mysql_real_escape_string($name);
-        $desc = mysql_real_escape_string($desc);
+        $name = pg_escape_string($name);
+        $desc = pg_escape_string($desc);
         $end = strtotime($end);
 
-        $upd = mysql_query("UPDATE milestones SET `name`='$name', `desc`='$desc', `end`='$end' WHERE ID=$id");
+        $upd = pg_query("UPDATE milestones SET name='$name', desc='$desc', end='$end' WHERE ID=$id");
         if ($upd)
         {
-            $nam = mysql_query("SELECT project,name FROM milestones WHERE ID = $id");
-            $nam = mysql_fetch_row($nam);
+            $nam = pg_query("SELECT project,name FROM milestones WHERE ID = $id");
+            $nam = pg_fetch_row($nam);
             $project = $nam[0];
             $name = $nam[1];
 
@@ -99,12 +99,12 @@ class milestone
     {
         $id = (int) $id;
 
-        $nam = mysql_query("SELECT project,name FROM milestones WHERE ID = $id");
-        $del = mysql_query("DELETE FROM milestones WHERE ID = $id");
-        $del1 = mysql_query("DELETE FROM milestones_assigned WHERE milestone = $id");
+        $nam = pg_query("SELECT project,name FROM milestones WHERE ID = $id");
+        $del = pg_query("DELETE FROM milestones WHERE ID = $id");
+        $del1 = pg_query("DELETE FROM milestones_assigned WHERE milestone = $id");
         if ($del)
         {
-            $nam = mysql_fetch_row($nam);
+            $nam = pg_fetch_row($nam);
             $project = $nam[0];
             $name = $nam[1];
 
@@ -127,12 +127,12 @@ class milestone
     {
         $id = (int) $id;
 
-        $upd = mysql_query("UPDATE milestones SET status = 1 WHERE ID = $id");
+        $upd = pg_query("UPDATE milestones SET status = 1 WHERE ID = $id");
 
         if ($upd)
         {
-            $nam = mysql_query("SELECT project,name FROM milestones WHERE ID = $id");
-            $nam = mysql_fetch_row($nam);
+            $nam = pg_query("SELECT project,name FROM milestones WHERE ID = $id");
+            $nam = pg_fetch_row($nam);
             $project = $nam[0];
             $name = $nam[1];
 
@@ -155,7 +155,7 @@ class milestone
     {
         $id = (int) $id;
 
-        $upd = mysql_query("UPDATE milestones SET status = 0 WHERE ID = $id");
+        $upd = pg_query("UPDATE milestones SET status = 0 WHERE ID = $id");
         $tasklists = $this->getMilestoneTasklists($id);
         if (!empty($tasklists))
         {
@@ -165,16 +165,16 @@ class milestone
                 $tasks = $tl->getTasksFromList($tasklist[ID]);
                 foreach ($tasks as $task)
                 {
-                    $close_task = mysql_query("UPDATE tasks SET status = 0 WHERE ID = $task[ID]");
+                    $close_task = pg_query("UPDATE tasks SET status = 0 WHERE ID = $task[ID]");
                 }
-                $close_tasklist = mysql_query("UPDATE tasklist SET status = 0 WHERE ID = $tasklist[ID]");
+                $close_tasklist = pg_query("UPDATE tasklist SET status = 0 WHERE ID = $tasklist[ID]");
             }
         }
 
         if ($upd)
         {
-            $nam = mysql_query("SELECT project,name FROM milestones WHERE ID = $id");
-            $nam = mysql_fetch_row($nam);
+            $nam = pg_query("SELECT project,name FROM milestones WHERE ID = $id");
+            $nam = pg_fetch_row($nam);
             $project = $nam[0];
             $name = $nam[1];
 
@@ -199,11 +199,11 @@ class milestone
         $milestone = (int) $milestone;
         $user = (int) $user;
 
-        $upd = mysql_query("INSERT INTO milestones_assigned (NULL,$user,$milestone)");
+        $upd = pg_query("INSERT INTO milestones_assigned (NULL,$user,$milestone)");
         if ($upd)
         {
-            $nam = mysql_query("SELECT project,name FROM milestones WHERE ID = $id");
-            $nam = mysql_fetch_row($nam);
+            $nam = pg_query("SELECT project,name FROM milestones WHERE ID = $id");
+            $nam = pg_fetch_row($nam);
             $project = $nam[0];
             $name = $nam[1];
 
@@ -228,11 +228,11 @@ class milestone
         $milestone = (int) $milestone;
         $user = (int) $user;
 
-        $upd = mysql_query("DELETE FROM milestones_assigned WHERE user = $user AND milestone = $milestone");
+        $upd = pg_query("DELETE FROM milestones_assigned WHERE user = $user AND milestone = $milestone");
         if ($upd)
         {
-            $nam = mysql_query("SELECT project,name FROM milestones WHERE ID = $id");
-            $nam = mysql_fetch_row($nam);
+            $nam = pg_query("SELECT project,name FROM milestones WHERE ID = $id");
+            $nam = pg_fetch_row($nam);
             $project = $nam[0];
             $name = $nam[1];
 
@@ -255,8 +255,8 @@ class milestone
     {
         $id = (int) $id;
 
-        $sel = mysql_query("SELECT * FROM milestones WHERE ID = $id");
-        $milestone = mysql_fetch_array($sel);
+        $sel = pg_query("SELECT * FROM milestones WHERE ID = $id");
+        $milestone = pg_fetch_array($sel);
 
         if (!empty($milestone))
         {
@@ -270,8 +270,8 @@ class milestone
             $milestone["name"] = stripslashes($milestone["name"]);
             $milestone["desc"] = stripslashes($milestone["desc"]);
 
-            $psel = mysql_query("SELECT name FROM projekte WHERE ID = $milestone[project]");
-            $pname = mysql_fetch_row($psel);
+            $psel = pg_query("SELECT name FROM projekte WHERE ID = $milestone[project]");
+            $pname = pg_fetch_row($psel);
             $pname = $pname[0];
             $milestone["pname"] = $pname;
             $milestone["pname"] = stripslashes($milestone["pname"]);
@@ -308,9 +308,9 @@ class milestone
 
         $milestones = array();
 
-        $sel = mysql_query("SELECT ID FROM milestones WHERE `status`=$status LIMIT $num");
+        $sel = pg_query("SELECT ID FROM milestones WHERE status=$status LIMIT $num");
 
-        while ($milestone = mysql_fetch_array($sel))
+        while ($milestone = pg_fetch_array($sel))
         {
             $themilestone = $this->getMilestone($milestone["ID"]);
             array_push($milestones, $themilestone);
@@ -336,10 +336,10 @@ class milestone
     {
         $project = (int) $project;
 
-        $sel = mysql_query("SELECT ID FROM milestones WHERE project = $project AND status = 0 ORDER BY ID ASC");
+        $sel = pg_query("SELECT ID FROM milestones WHERE project = $project AND status = 0 ORDER BY ID ASC");
         $stones = array();
 
-        while ($milestone = mysql_fetch_array($sel))
+        while ($milestone = pg_fetch_array($sel))
         {
             $themilestone = $this->getMilestone($milestone["ID"]);
             array_push($stones, $themilestone);
@@ -373,8 +373,8 @@ class milestone
 
         $sql = "SELECT ID FROM milestones WHERE project = $project AND end < $now AND status = 1 ORDER BY end ASC LIMIT $lim";
 
-        $sel1 = mysql_query($sql);
-        while ($milestone = mysql_fetch_array($sel1))
+        $sel1 = pg_query($sql);
+        while ($milestone = pg_fetch_array($sel1))
         {
             if (!empty($milestone))
             {
@@ -410,8 +410,8 @@ class milestone
         $milestones = array();
         $sql = "SELECT ID FROM milestones WHERE project = $project AND status = 1 ORDER BY end ASC LIMIT $lim";
 
-        $sel1 = mysql_query($sql);
-        while ($milestone = mysql_fetch_array($sel1))
+        $sel1 = pg_query($sql);
+        while ($milestone = pg_fetch_array($sel1))
         {
             if (!empty($milestone))
             {
@@ -450,8 +450,8 @@ class milestone
         	$sql .= " LIMIT $lim";
         }
 
-        $sel1 = mysql_query($sql);
-        while ($milestone = mysql_fetch_array($sel1))
+        $sel1 = pg_query($sql);
+        while ($milestone = pg_fetch_array($sel1))
         {
             $themilestone = $this->getMilestone($milestone["ID"]);
             array_push($milestones, $themilestone);
@@ -484,8 +484,8 @@ class milestone
         $now = strtotime($tod);
         $milestones = array();
 
-        $sel1 = mysql_query("SELECT * FROM milestones WHERE project = $project AND end = '$now' AND status = 1 ORDER BY end ASC LIMIT $lim");
-        while ($milestone = mysql_fetch_array($sel1))
+        $sel1 = pg_query("SELECT * FROM milestones WHERE project = $project AND end = '$now' AND status = 1 ORDER BY end ASC LIMIT $lim");
+        while ($milestone = pg_fetch_array($sel1))
         {
             $themilestone = $this->getMilestone($milestone["ID"]);
             array_push($milestones, $themilestone);
@@ -530,14 +530,14 @@ class milestone
 
         if ($project > 0)
         {
-            $sel1 = mysql_query("SELECT * FROM milestones WHERE project =  $project AND status=1 AND end = '$starttime'");
+            $sel1 = pg_query("SELECT * FROM milestones WHERE project =  $project AND status=1 AND end = '$starttime'");
         }
         else
         {
-			$sel1 = mysql_query("SELECT milestones.*,projekte_assigned.user,projekte.name AS pname FROM milestones,projekte_assigned,projekte WHERE milestones.project = projekte_assigned.projekt AND milestones.project = projekte.ID HAVING projekte_assigned.user = $user AND status=1 AND end = '$starttime'");
+			$sel1 = pg_query("SELECT milestones.*,projekte_assigned.user,projekte.name AS pname FROM milestones,projekte_assigned,projekte WHERE milestones.project = projekte_assigned.projekt AND milestones.project = projekte.ID HAVING projekte_assigned.user = $user AND status=1 AND end = '$starttime'");
         }
 
-        while ($stone = mysql_fetch_array($sel1))
+        while ($stone = pg_fetch_array($sel1))
         {
             $stone["daysleft"] = $this->getDaysLeft($stone["end"]);
             array_push($timeline, $stone);
@@ -563,11 +563,11 @@ class milestone
     {
         $milestone = (int) $milestone;
 
-        $sel = mysql_query("SELECT * FROM tasklist WHERE milestone = $milestone AND status = 1");
+        $sel = pg_query("SELECT * FROM tasklist WHERE milestone = $milestone AND status = 1");
         $lists = array();
         if ($milestone)
         {
-            while ($list = mysql_fetch_array($sel))
+            while ($list = pg_fetch_array($sel))
             {
                 $list["name"] = stripslashes($list["name"]);
                 $list["desc"] = stripslashes($list["desc"]);
@@ -587,9 +587,9 @@ class milestone
     private function getMilestoneMessages($milestone)
     {
         $milestone = (int) $milestone;
-        $sel = mysql_query("SELECT ID,title FROM messages WHERE milestone = $milestone");
+        $sel = pg_query("SELECT ID,title FROM messages WHERE milestone = $milestone");
         $msgs = array();
-        while ($msg = mysql_fetch_array($sel))
+        while ($msg = pg_fetch_array($sel))
         {
             array_push($msgs, $msg);
         }

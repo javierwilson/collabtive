@@ -32,9 +32,9 @@ class project {
      */
     function add($name, $desc, $end, $budget, $assignme = 0)
     {
-        $name = mysql_real_escape_string($name);
-        $desc = mysql_real_escape_string($desc);
-        $end = mysql_real_escape_string($end);
+        $name = pg_escape_string($name);
+        $desc = pg_escape_string($desc);
+        $end = pg_escape_string($end);
         $assignme = (int) $assignme;
         $budget = (float) $budget;
 
@@ -43,7 +43,7 @@ class project {
         }
         $now = time();
 
-        $ins1 = mysql_query("INSERT INTO projekte (`name`, `desc`, `end`, `start`, `status`, `budget`) VALUES ('$name','$desc','$end','$now',1,'$budget')");
+        $ins1 = pg_query("INSERT INTO projekte (name, desc, end, start, status, budget) VALUES ('$name','$desc','$end','$now',1,'$budget')");
 
         $insid = mysql_insert_id();
         if ($assignme == 1) {
@@ -70,9 +70,9 @@ class project {
      */
     function AddFromBasecamp($name, $desc, $start, $status = 1)
     {
-        $name = mysql_real_escape_string($name);
-        $desc = mysql_real_escape_string($desc);
-        $start = mysql_real_escape_string($start);
+        $name = pg_escape_string($name);
+        $desc = pg_escape_string($desc);
+        $start = pg_escape_string($start);
         $id = (int) $id;
         $status = (int) $status;
 
@@ -80,7 +80,7 @@ class project {
         $tod = date("d.m.Y");
         $now = strtotime($tod . " +1week");
 
-        $ins1 = mysql_query("INSERT INTO projekte (`name`, `desc`,`end`, `start`, `status`) VALUES ('$name','$desc','$now','$start','$status')");
+        $ins1 = pg_query("INSERT INTO projekte (name, desc,end, start, status) VALUES ('$name','$desc','$now','$start','$status')");
 
         $insid = mysql_insert_id();
 
@@ -104,15 +104,15 @@ class project {
      */
     function edit($id, $name, $desc, $end, $budget)
     {
-        $id = mysql_real_escape_string($id);
-        $name = mysql_real_escape_string($name);
-        $desc = mysql_real_escape_string($desc);
-        $end = mysql_real_escape_string($end);
+        $id = pg_escape_string($id);
+        $name = pg_escape_string($name);
+        $desc = pg_escape_string($desc);
+        $end = pg_escape_string($end);
         $end = strtotime($end);
         $id = (int) $id;
         $budget = (float) $budget;
 
-        $upd = mysql_query("UPDATE projekte SET name='$name',`desc`='$desc',`end`='$end',budget=$budget WHERE ID = $id");
+        $upd = pg_query("UPDATE projekte SET name='$name',desc='$desc',end='$end',budget=$budget WHERE ID = $id");
 
         if ($upd) {
             $this->mylog->add($name, 'projekt' , 2, $id);
@@ -131,14 +131,14 @@ class project {
     function del($id)
     {
         $userid = $_SESSION["userid"];
-        $id = mysql_real_escape_string($id);
+        $id = pg_escape_string($id);
         $id = (int) $id;
         // Delete assignments of tasks of this project to users
         $task = new task();
         $tasks = $task->getProjectTasks($id);
         if (!empty($tasks)) {
             foreach ($tasks as $tas) {
-                $del_taskassign = mysql_query("DELETE FROM tasks_assigned WHERE task = $tas[ID]");
+                $del_taskassign = pg_query("DELETE FROM tasks_assigned WHERE task = $tas[ID]");
             }
         }
         // Delete files and the assignments of these files to the messages they were attached to
@@ -150,15 +150,15 @@ class project {
             }
         }
 
-        $del_messages = mysql_query("DELETE FROM messages WHERE project = $id");
-        $del_milestones = mysql_query("DELETE FROM milestones WHERE project = $id");
-        $del_projectassignments = mysql_query("DELETE FROM projekte_assigned WHERE projekt = $id");
-        $del_tasklists = mysql_query("DELETE FROM tasklist WHERE project = $id");
-        $del_tasks = mysql_query("DELETE FROM tasks WHERE project = $id");
-        $del_timetracker = mysql_query("DELETE FROM timetracker WHERE project = $id");
+        $del_messages = pg_query("DELETE FROM messages WHERE project = $id");
+        $del_milestones = pg_query("DELETE FROM milestones WHERE project = $id");
+        $del_projectassignments = pg_query("DELETE FROM projekte_assigned WHERE projekt = $id");
+        $del_tasklists = pg_query("DELETE FROM tasklist WHERE project = $id");
+        $del_tasks = pg_query("DELETE FROM tasks WHERE project = $id");
+        $del_timetracker = pg_query("DELETE FROM timetracker WHERE project = $id");
 
-        $del_logentries = mysql_query("DELETE FROM log WHERE project = $id");
-        $del = mysql_query("DELETE FROM projekte WHERE ID = $id");
+        $del_logentries = pg_query("DELETE FROM log WHERE project = $id");
+        $del = pg_query("DELETE FROM projekte WHERE ID = $id");
 
         delete_directory(CL_ROOT . "/files/" . CL_CONFIG . "/$id");
         if ($del) {
@@ -177,13 +177,13 @@ class project {
      */
     function open($id)
     {
-        $id = mysql_real_escape_string($id);
+        $id = pg_escape_string($id);
         $id = (int) $id;
 
-        $upd = mysql_query("UPDATE projekte SET status=1 WHERE ID = $id");
+        $upd = pg_query("UPDATE projekte SET status=1 WHERE ID = $id");
         if ($upd) {
-            $nam = mysql_query("SELECT name FROM projekte WHERE ID = $id");
-            $nam = mysql_fetch_row($nam);
+            $nam = pg_query("SELECT name FROM projekte WHERE ID = $id");
+            $nam = pg_fetch_row($nam);
             $nam = $nam[0];
             $this->mylog->add($nam, 'projekt', 4, $id);
             return true;
@@ -200,14 +200,14 @@ class project {
      */
     function close($id)
     {
-        $id = mysql_real_escape_string($id);
+        $id = pg_escape_string($id);
         $id = (int) $id;
 
         $mile = new milestone();
         $milestones = $mile->getAllProjectMilestones($id, 100000);
         if (!empty($milestones)) {
             foreach ($milestones as $miles) {
-                $close_milestones = mysql_query("UPDATE milestones SET status = 0 WHERE ID = $miles[ID]");
+                $close_milestones = pg_query("UPDATE milestones SET status = 0 WHERE ID = $miles[ID]");
             }
         }
 
@@ -215,7 +215,7 @@ class project {
         $tasks = $task->getProjectTasks($id);
         if (!empty($tasks)) {
             foreach ($tasks as $tas) {
-                $close_tasks = mysql_query("UPDATE tasks SET status = 0 WHERE ID = $tas[ID]");
+                $close_tasks = pg_query("UPDATE tasks SET status = 0 WHERE ID = $tas[ID]");
             }
         }
 
@@ -223,14 +223,14 @@ class project {
         $tasklists = $tasklist->getProjectTasklists($id);
         if (!empty($tasklists)) {
             foreach ($tasklists as $tl) {
-                $close_tasklists = mysql_query("UPDATE tasklist SET status = 0 WHERE ID = $tl[ID]");
+                $close_tasklists = pg_query("UPDATE tasklist SET status = 0 WHERE ID = $tl[ID]");
             }
         }
 
-        $upd = mysql_query("UPDATE projekte SET status=0 WHERE ID = $id");
+        $upd = pg_query("UPDATE projekte SET status=0 WHERE ID = $id");
         if ($upd) {
-            $nam = mysql_query("SELECT name FROM projekte WHERE ID = $id");
-            $nam = mysql_fetch_row($nam);
+            $nam = pg_query("SELECT name FROM projekte WHERE ID = $id");
+            $nam = pg_fetch_row($nam);
             $nam = $nam[0];
             $this->mylog->add($nam, 'projekt', 5, $id);
             return true;
@@ -248,12 +248,12 @@ class project {
      */
     function assign($user, $id)
     {
-        $user = mysql_real_escape_string($user);
-        $id = mysql_real_escape_string($id);
+        $user = pg_escape_string($user);
+        $id = pg_escape_string($id);
         $user = (int) $user;
         $id = (int) $id;
 
-        $ins = mysql_query("INSERT INTO projekte_assigned (user,projekt) VALUES ($user,$id)");
+        $ins = pg_query("INSERT INTO projekte_assigned (user,projekt) VALUES ($user,$id)");
         if ($ins) {
             return true;
         } else {
@@ -270,8 +270,8 @@ class project {
      */
     function deassign($user, $id)
     {
-        $user = mysql_real_escape_string($user);
-        $id = mysql_real_escape_string($id);
+        $user = pg_escape_string($user);
+        $id = pg_escape_string($id);
         $user = (int) $user;
         $id = (int) $id;
 
@@ -281,13 +281,13 @@ class project {
         $donemiles = $milestone->getDoneProjectMilestones($id);
         if (!empty($donemiles)) {
             foreach ($donemiles as $dm) {
-                $sql1 = mysql_query("DELETE FROM milestones_assigned WHERE user = $user AND milestone = $dm[ID]");
+                $sql1 = pg_query("DELETE FROM milestones_assigned WHERE user = $user AND milestone = $dm[ID]");
             }
         }
         $openmiles = $milestone->getAllProjectMilestones($id, 100000);
         if (!empty($openmiles)) {
             foreach ($openmiles as $om) {
-                $sql2 = mysql_query("DELETE FROM milestones_assigned WHERE user = $user AND milestone = $om[ID]");
+                $sql2 = pg_query("DELETE FROM milestones_assigned WHERE user = $user AND milestone = $om[ID]");
             }
         }
 
@@ -295,11 +295,11 @@ class project {
         $tasks = $task->getProjectTasks($id);
         if (!empty($tasks)) {
             foreach ($tasks as $t) {
-                $sql3 = mysql_query("DELETE FROM tasks_assigned WHERE user = $user AND task = $t[ID]");
+                $sql3 = pg_query("DELETE FROM tasks_assigned WHERE user = $user AND task = $t[ID]");
             }
         }
 
-        $del = mysql_query($sql);
+        $del = pg_query($sql);
         if ($del) {
             return true;
         } else {
@@ -318,8 +318,8 @@ class project {
     {
         $id = (int) $id;
 
-        $sel = mysql_query("SELECT * FROM projekte WHERE ID = $id");
-        $project = mysql_fetch_array($sel, MYSQL_ASSOC);
+        $sel = pg_query("SELECT * FROM projekte WHERE ID = $id");
+        $project = pg_fetch_array($sel, PGSQL_ASSOC);
 
         if (!empty($project)) {
             if ($project["end"]) {
@@ -353,15 +353,15 @@ class project {
      */
     function getProjects($status = 1, $lim = 10)
     {
-        $status = mysql_real_escape_string($status);
-        $lim = mysql_real_escape_string($lim);
+        $status = pg_escape_string($status);
+        $lim = pg_escape_string($lim);
         $status = (int) $status;
         $lim = (int) $lim;
 
         $projekte = array();
-        $sel = mysql_query("SELECT ID FROM projekte WHERE `status`=$status ORDER BY end ASC LIMIT $lim");
+        $sel = pg_query("SELECT ID FROM projekte WHERE status=$status ORDER BY end ASC LIMIT $lim");
 
-        while ($projekt = mysql_fetch_array($sel)) {
+        while ($projekt = pg_fetch_array($sel)) {
             $project = $this->getProject($projekt["ID"]);
             array_push($projekte, $project);
         }
@@ -382,16 +382,16 @@ class project {
      */
     function getMyProjects($user, $status = 1)
     {
-        $user = mysql_real_escape_string($user);
-        $status = mysql_real_escape_string($status);
+        $user = pg_escape_string($user);
+        $status = pg_escape_string($status);
         $user = (int) $user;
         $status = (int) $status;
 
         $myprojekte = array();
-        $sel = mysql_query("SELECT projekt FROM projekte_assigned WHERE user = $user ORDER BY ID ASC");
+        $sel = pg_query("SELECT projekt FROM projekte_assigned WHERE user = $user ORDER BY ID ASC");
 
-        while ($projs = mysql_fetch_row($sel)) {
-            $projekt = mysql_fetch_array(mysql_query("SELECT ID FROM projekte WHERE ID = $projs[0] AND status=$status"), MYSQL_ASSOC);
+        while ($projs = pg_fetch_row($sel)) {
+            $projekt = pg_fetch_array(pg_query("SELECT ID FROM projekte WHERE ID = $projs[0] AND status=$status"), PGSQL_ASSOC);
             if ($projekt) {
                 $project = $this->getProject($projekt["ID"]);
                 array_push($myprojekte, $project);
@@ -413,15 +413,15 @@ class project {
      */
     function getMyProjectIds($user)
     {
-        $user = mysql_real_escape_string($user);
+        $user = pg_escape_string($user);
         $user = (int) $user;
 
         $myprojekte = array();
-        $sel = mysql_query("SELECT projekt FROM projekte_assigned WHERE user = $user ORDER BY end ASC");
+        $sel = pg_query("SELECT projekt FROM projekte_assigned WHERE user = $user ORDER BY end ASC");
         if ($sel) {
-            while ($projs = mysql_fetch_row($sel)) {
-                $sel2 = mysql_query("SELECT ID FROM projekte WHERE ID = $projs[0]");
-                $projekt = mysql_fetch_array($sel2);
+            while ($projs = pg_fetch_row($sel)) {
+                $sel2 = pg_query("SELECT ID FROM projekte WHERE ID = $projs[0]");
+                $projekt = pg_fetch_array($sel2);
                 if ($projekt) {
                     array_push($myprojekte, $projekt);
                 }
@@ -451,7 +451,7 @@ class project {
         $members = array();
 
         if ($paginate) {
-            $num = mysql_fetch_row(mysql_query("SELECT COUNT(*) FROM projekte_assigned WHERE projekt = $project"));
+            $num = pg_fetch_row(pg_query("SELECT COUNT(*) FROM projekte_assigned WHERE projekt = $project"));
             $num = $num[0];
             $lim = (int)$lim;
             SmartyPaginate::connect();
@@ -464,10 +464,10 @@ class project {
         } else {
             $start = 0;
         }
-        $sel1 = mysql_query("SELECT user FROM projekte_assigned WHERE projekt = $project LIMIT $start,$lim");
+        $sel1 = pg_query("SELECT user FROM projekte_assigned WHERE projekt = $project LIMIT $start,$lim");
 
         $usr = new user();
-        while ($user = mysql_fetch_array($sel1)) {
+        while ($user = pg_fetch_array($sel1)) {
             $theuser = $usr->getProfile($user[0]);
             array_push($members, $theuser);
         }
@@ -482,7 +482,7 @@ class project {
     function countMembers($project)
     {
         $project = (int) $project;
-        $num = mysql_fetch_row(mysql_query("SELECT COUNT(*) FROM projekte_assigned WHERE projekt = $project"));
+        $num = pg_fetch_row(pg_query("SELECT COUNT(*) FROM projekte_assigned WHERE projekt = $project"));
         return $num[0];
     }
 
@@ -494,15 +494,15 @@ class project {
      */
     function getProgress($project)
     {
-        $project = mysql_real_escape_string($project);
+        $project = pg_escape_string($project);
         $project = (int) $project;
 
-        $otasks = mysql_query("SELECT COUNT(*) FROM tasks WHERE project = $project AND status = 1");
-        $otasks = mysql_fetch_row($otasks);
+        $otasks = pg_query("SELECT COUNT(*) FROM tasks WHERE project = $project AND status = 1");
+        $otasks = pg_fetch_row($otasks);
         $otasks = $otasks[0];
 
-        $clotasks = mysql_query("SELECT COUNT(*) FROM tasks WHERE project = $project AND status = 0");
-        $clotasks = mysql_fetch_row($clotasks);
+        $clotasks = pg_query("SELECT COUNT(*) FROM tasks WHERE project = $project AND status = 0");
+        $clotasks = pg_fetch_row($clotasks);
         $clotasks = $clotasks[0];
 
         $totaltasks = $otasks + $clotasks;
@@ -518,10 +518,10 @@ class project {
     function getProjectFolders($project)
     {
         $project = (int) $project;
-        $sel = mysql_query("SELECT * FROM projectfolders WHERE project = $project");
+        $sel = pg_query("SELECT * FROM projectfolders WHERE project = $project");
 
         $folders = array();
-        while ($folder = mysql_fetch_array($sel)) {
+        while ($folder = pg_fetch_array($sel)) {
             array_push($folders, $folder);
         }
 
@@ -556,7 +556,7 @@ class project {
     function makecopy($id)
     {
         // copy project
-        $q = mysql_query("INSERT INTO projekte (`name`, `desc`, `end`, `start`, `status`, `budget`) SELECT `name`, `desc`, `end`, `start`, `status`, `budget` FROM projekte WHERE ID = " . (int)$id);
+        $q = pg_query("INSERT INTO projekte (name, desc, end, start, status, budget) SELECT name, desc, end, start, status, budget FROM projekte WHERE ID = " . (int)$id);
 
         $insid = mysql_insert_id();
         $uid = $_SESSION['userid'];
@@ -569,7 +569,7 @@ class project {
         if ($q) {
             $pname = $this->getProject($insid);
             $name = $pname["name"] . " Copy";
-            mysql_query("UPDATE projekte SET `name` = '$name' WHERE ID = " . $insid . " LIMIT 1");
+            pg_query("UPDATE projekte SET name = '$name' WHERE ID = " . $insid . " LIMIT 1");
             // now copy the milestones
             $miles = $milesobj->getAllProjectMilestones($id);
             if (!empty($miles)) {
@@ -578,10 +578,10 @@ class project {
                     // copy milestone
                     $msid = $milesobj->add($insid, $ms["name"] , $ms["desc"] , $ms["end"] , 1);
                     // get all tasklists for milestone
-                    $qb = mysql_query("SELECT * FROM tasklist WHERE project = $id AND milestone = $ms[ID]");
+                    $qb = pg_query("SELECT * FROM tasklist WHERE project = $id AND milestone = $ms[ID]");
                     if ($qb) {
                         // go through the tasklists
-                        while ($tl = mysql_fetch_array($qb)) {
+                        while ($tl = pg_fetch_array($qb)) {
                             // copy tasklist
                             $tlid = $objtasklist->add_liste($insid, $tl["name"] , $tl["desc"], 0, $msid);
                             // get tasks for the tasklist
@@ -596,10 +596,10 @@ class project {
                 } // milestones END
             }
             // get all tasklists and tasks that do not belong to a milestone
-            $qb = mysql_query("SELECT * FROM tasklist WHERE project = $id AND milestone = 0");
+            $qb = pg_query("SELECT * FROM tasklist WHERE project = $id AND milestone = 0");
             if ($qb) {
                 // go through the tasklists
-                while ($tl = mysql_fetch_array($qb)) {
+                while ($tl = pg_fetch_array($qb)) {
                     // copy tasklist
                     $tlid = $objtasklist->add_liste($insid, $tl["name"] , $tl["desc"], 0, $msid);
                     // get tasks for the tasklist

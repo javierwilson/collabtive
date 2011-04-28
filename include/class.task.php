@@ -38,9 +38,9 @@ class task
      */
     function add($end, $title, $text, $liste, $project)
     {
-        $end = mysql_real_escape_string($end);
-        $title = mysql_real_escape_string($title);
-        $text = mysql_real_escape_string($text);
+        $end = pg_escape_string($end);
+        $title = pg_escape_string($title);
+        $text = pg_escape_string($text);
         $liste = (int) $liste;
         $project = (int) $project;
 
@@ -53,7 +53,7 @@ class task
 
         $start = time();
         // write to db
-        $ins = mysql_query("INSERT INTO tasks (start,end,title,text,liste,status,project) VALUES ('$start','$end_fin','$title','$text',$liste,1,$project)");
+        $ins = pg_query("INSERT INTO tasks (start,end,title,text,liste,status,project) VALUES ('$start','$end_fin','$title','$text',$liste,1,$project)");
         if ($ins)
         {
             $insid = mysql_insert_id();
@@ -81,16 +81,16 @@ class task
      */
     function edit($id, $end, $title, $text, $liste)
     {
-        $end = mysql_real_escape_string($end);
-        $title = mysql_real_escape_string($title);
-        $text = mysql_real_escape_string($text);
+        $end = pg_escape_string($end);
+        $title = pg_escape_string($title);
+        $text = pg_escape_string($text);
         $id = (int) $id;
         $liste = (int) $liste;
 
         $end = strtotime($end);
 
-        $upd = mysql_query("UPDATE tasks SET `end`='$end',`title`='$title', `text`='$text', `liste`=$liste WHERE ID = $id");
-		mysql_query("DELETE FROM tasks_assigned WHERE `task` = $id");
+        $upd = pg_query("UPDATE tasks SET end='$end',title='$title', text='$text', liste=$liste WHERE ID = $id");
+		pg_query("DELETE FROM tasks_assigned WHERE task = $id");
 
 
         if ($upd)
@@ -116,10 +116,10 @@ class task
         $id = (int) $id;
 
         $nameproject = $this->getNameProject($id);
-        $del = mysql_query("DELETE FROM tasks WHERE ID = $id LIMIT 1");
+        $del = pg_query("DELETE FROM tasks WHERE ID = $id LIMIT 1");
         if ($del)
         {
-            $del2 = mysql_query("DELETE FROM tasks_assigned WHERE task=$id");
+            $del2 = pg_query("DELETE FROM tasks_assigned WHERE task=$id");
             $this->mylog->add($nameproject[0], 'task', 3, $nameproject[1]);
             return true;
         }
@@ -139,7 +139,7 @@ class task
     {
         $id = (int) $id;
 
-        $upd = mysql_query("UPDATE tasks SET status = 1 WHERE ID = $id");
+        $upd = pg_query("UPDATE tasks SET status = 1 WHERE ID = $id");
         if ($upd)
         {
             $nameproject = $this->getNameProject($id);
@@ -162,13 +162,13 @@ class task
     {
         $id = (int) $id;
 
-        $upd = mysql_query("UPDATE tasks SET status = 0 WHERE ID = $id");
+        $upd = pg_query("UPDATE tasks SET status = 0 WHERE ID = $id");
 
         /*
-        $sql = mysql_query("SELECT liste FROM tasks WHERE ID = $id");
-        $liste = mysql_fetch_row($sql);
-        $sql2 = mysql_query("SELECT count(*) FROM tasks WHERE liste = $liste[0] AND status = 1");
-        $cou = mysql_fetch_row($sql2);
+        $sql = pg_query("SELECT liste FROM tasks WHERE ID = $id");
+        $liste = pg_fetch_row($sql);
+        $sql2 = pg_query("SELECT count(*) FROM tasks WHERE liste = $liste[0] AND status = 1");
+        $cou = pg_fetch_row($sql2);
         // if this is the last task in its list, close the list too.
         if ($cou[0] == 0)
         {
@@ -201,7 +201,7 @@ class task
         $task = (int) $task;
         $id = (int) $id;
 
-        $upd = mysql_query("INSERT INTO tasks_assigned (user,task) VALUES ($id,$task)");
+        $upd = pg_query("INSERT INTO tasks_assigned (user,task) VALUES ($id,$task)");
         if ($upd)
         {
             return true;
@@ -224,7 +224,7 @@ class task
         $task = (int) $task;
         $id = (int) $id;
 
-        $upd = mysql_query("DELETE FROM tasks_assigned WHERE user = $id AND task = $task");
+        $upd = pg_query("DELETE FROM tasks_assigned WHERE user = $id AND task = $task");
         if ($upd)
         {
             return true;
@@ -245,8 +245,8 @@ class task
     {
         $id = (int) $id;
 
-        $sel = mysql_query("SELECT * FROM tasks WHERE ID = $id");
-        $task = mysql_fetch_array($sel, MYSQL_ASSOC);
+        $sel = pg_query("SELECT * FROM tasks WHERE ID = $id");
+        $task = pg_fetch_array($sel, PGSQL_ASSOC);
         if (!empty($task))
         {
             // format datestring according to dateformat option
@@ -263,9 +263,9 @@ class task
             // get remainig days until due date
             $tage = $this->getDaysLeft($task['end']);
 
-            $usel = mysql_query("SELECT user FROM tasks_assigned WHERE task = $task[ID]");
+            $usel = pg_query("SELECT user FROM tasks_assigned WHERE task = $task[ID]");
             $users = array();
-            while ($usr = mysql_fetch_row($usel))
+            while ($usr = pg_fetch_row($usel))
             {
                 array_push($users, $usr[0]);
                 $task["user"] = "All";
@@ -326,13 +326,13 @@ class task
         $lists = array();
         if ($status !== false)
         {
-            $sel2 = mysql_query("SELECT ID FROM tasks WHERE project = $project AND status=$status");
+            $sel2 = pg_query("SELECT ID FROM tasks WHERE project = $project AND status=$status");
         }
         else
         {
-            $sel2 = mysql_query("SELECT ID FROM tasks WHERE project = $project");
+            $sel2 = pg_query("SELECT ID FROM tasks WHERE project = $project");
         }
-        while ($tasks = mysql_fetch_array($sel2, MYSQL_ASSOC))
+        while ($tasks = pg_fetch_array($sel2, PGSQL_ASSOC))
         {
             $task = $this->getTask($tasks["ID"]);
             array_push($lists, $task);
@@ -364,11 +364,11 @@ class task
         $lists = array();
         $now = time();
 
-        $sel2 = mysql_query("SELECT ID FROM tasks WHERE project = $project AND status=1 AND end > $now ORDER BY `end` ASC LIMIT $limit");
+        $sel2 = pg_query("SELECT ID FROM tasks WHERE project = $project AND status=1 AND end > $now ORDER BY end ASC LIMIT $limit");
 
-        while ($tasks = mysql_fetch_array($sel2, MYSQL_ASSOC))
+        while ($tasks = pg_fetch_array($sel2, PGSQL_ASSOC))
         {
-            $chk = mysql_fetch_row(mysql_query("SELECT ID FROM tasks_assigned WHERE user = $user AND task = $tasks[ID]"));
+            $chk = pg_fetch_row(pg_query("SELECT ID FROM tasks_assigned WHERE user = $user AND task = $tasks[ID]"));
             $chk = $chk[0];
             if ($chk)
             {
@@ -408,9 +408,9 @@ class task
         $lists = array();
         $now = time();
 
-        $sel2 = mysql_query("SELECT tasks.*,tasks_assigned.user FROM tasks,tasks_assigned WHERE tasks.ID = tasks_assigned.task HAVING tasks_assigned.user = $user AND tasks.project = $project AND status=1 ORDER BY `end` ASC ");
+        $sel2 = pg_query("SELECT tasks.*,tasks_assigned.user FROM tasks,tasks_assigned WHERE tasks.ID = tasks_assigned.task HAVING tasks_assigned.user = $user AND tasks.project = $project AND status=1 ORDER BY end ASC ");
 
-        while ($tasks = mysql_fetch_array($sel2, MYSQL_ASSOC))
+        while ($tasks = pg_fetch_array($sel2, PGSQL_ASSOC))
         {
             $task = $this->getTask($tasks["ID"]);
             array_push($lists, $task);
@@ -443,8 +443,8 @@ class task
         $tod = date("d.m.Y");
         $now = strtotime($tod);
 
-        $sel2 = mysql_query("SELECT tasks.*,tasks_assigned.user FROM tasks,tasks_assigned WHERE tasks.ID = tasks_assigned.task HAVING tasks_assigned.user = $user AND tasks.project = $project  AND status=1 AND end < $now ORDER BY `end` ASC LIMIT $limit");
-        while ($tasks = mysql_fetch_array($sel2, MYSQL_ASSOC))
+        $sel2 = pg_query("SELECT tasks.*,tasks_assigned.user FROM tasks,tasks_assigned WHERE tasks.ID = tasks_assigned.task HAVING tasks_assigned.user = $user AND tasks.project = $project  AND status=1 AND end < $now ORDER BY end ASC LIMIT $limit");
+        while ($tasks = pg_fetch_array($sel2, PGSQL_ASSOC))
         {
             $task = $this->getTask($tasks["ID"]);
             array_push($lists, $task);
@@ -477,9 +477,9 @@ class task
         $lists = array();
         $now = strtotime($tod);
 
-        $sel2 = mysql_query("SELECT tasks.*,tasks_assigned.user FROM tasks,tasks_assigned WHERE tasks.ID = tasks_assigned.task HAVING tasks_assigned.user = $user AND tasks.project = $project  AND status=1 AND end = '$now' ORDER BY `end` ASC LIMIT $limit");
+        $sel2 = pg_query("SELECT tasks.*,tasks_assigned.user FROM tasks,tasks_assigned WHERE tasks.ID = tasks_assigned.task HAVING tasks_assigned.user = $user AND tasks.project = $project  AND status=1 AND end = '$now' ORDER BY end ASC LIMIT $limit");
 
-        while ($tasks = mysql_fetch_array($sel2, MYSQL_ASSOC))
+        while ($tasks = pg_fetch_array($sel2, PGSQL_ASSOC))
         {
             $task = $this->getTask($tasks["ID"]);
             array_push($lists, $task);
@@ -511,9 +511,9 @@ class task
         $lists = array();
         $now = time();
 
-        $sel2 = mysql_query("SELECT tasks.*,tasks_assigned.user FROM tasks,tasks_assigned WHERE tasks.ID = tasks_assigned.task HAVING tasks_assigned.user = $user AND tasks.project = $project AND status=0 ORDER BY `end` ASC LIMIT $limit");
+        $sel2 = pg_query("SELECT tasks.*,tasks_assigned.user FROM tasks,tasks_assigned WHERE tasks.ID = tasks_assigned.task HAVING tasks_assigned.user = $user AND tasks.project = $project AND status=0 ORDER BY end ASC LIMIT $limit");
 
-        while ($tasks = mysql_fetch_array($sel2, MYSQL_ASSOC))
+        while ($tasks = pg_fetch_array($sel2, PGSQL_ASSOC))
         {
             $task = $this->getTask($tasks["ID"]);
             array_push($lists, $task);
@@ -564,9 +564,9 @@ class task
         {
 			$sql = "SELECT tasks.*,tasks_assigned.user,projekte.name AS pname FROM tasks,tasks_assigned,projekte WHERE tasks.ID = tasks_assigned.task AND tasks.project = projekte.ID HAVING tasks_assigned.user = $user AND status=1 AND end = '$starttime'";
         }
-        $sel1 = mysql_query($sql);
+        $sel1 = pg_query($sql);
 
-        while ($stone = mysql_fetch_array($sel1, MYSQL_ASSOC))
+        while ($stone = pg_fetch_array($sel1, PGSQL_ASSOC))
         {
             $stone["daysleft"] = $this->getDaysLeft($stone["end"]);
             array_push($timeline, $stone);
@@ -592,13 +592,13 @@ class task
     {
         $id = (int) $id;
 
-        $sql = mysql_query("SELECT user FROM tasks_assigned WHERE task = $id");
-        $user = mysql_fetch_row($sql);
+        $sql = pg_query("SELECT user FROM tasks_assigned WHERE task = $id");
+        $user = pg_fetch_row($sql);
 
         if (!empty($user))
         {
-            $sel2 = mysql_query("SELECT name FROM user WHERE ID = $user[0]");
-            $uname = mysql_fetch_row($sel2);
+            $sel2 = pg_query("SELECT name FROM user WHERE ID = $user[0]");
+            $uname = pg_fetch_row($sel2);
             $uname = $uname[0];
             $user[1] = stripslashes($uname);
 
@@ -620,15 +620,15 @@ class task
     {
         $id = (int) $id;
 
-        $sql = mysql_query("SELECT user FROM tasks_assigned WHERE task = $id");
-        if (mysql_num_rows($sql) > 0)
+        $sql = pg_query("SELECT user FROM tasks_assigned WHERE task = $id");
+        if (pg_num_rows($sql) > 0)
         {
             $result = array();
-            while ($user = mysql_fetch_row($sql)) {
+            while ($user = pg_fetch_row($sql)) {
 
 
-                $sel2 = mysql_query("SELECT name FROM user WHERE ID = $user[0]");
-                $uname = mysql_fetch_row($sel2);
+                $sel2 = pg_query("SELECT name FROM user WHERE ID = $user[0]");
+                $uname = pg_fetch_row($sel2);
                 $uname = $uname[0];
                 $user[1] = stripslashes($uname);
 
@@ -725,12 +725,12 @@ class task
      */
     private function getTaskDetails(array $task)
     {
-        $psel = mysql_query("SELECT name FROM projekte WHERE ID = $task[project]");
-        $pname = mysql_fetch_row($psel);
+        $psel = pg_query("SELECT name FROM projekte WHERE ID = $task[project]");
+        $pname = pg_fetch_row($psel);
         $pname = stripslashes($pname[0]);
 
-        $list = mysql_query("SELECT name FROM tasklist WHERE ID = $task[liste]");
-        $list = mysql_fetch_row($list);
+        $list = pg_query("SELECT name FROM tasklist WHERE ID = $task[liste]");
+        $list = pg_fetch_row($list);
         $list = stripslashes($list[0]);
 
         if (isset($list) or isset($pname))
@@ -773,12 +773,12 @@ class task
     {
         $id = (int) $id;
 
-        $nam = mysql_query("SELECT text,liste,title FROM tasks WHERE ID = $id");
-        $nam = mysql_fetch_row($nam);
+        $nam = pg_query("SELECT text,liste,title FROM tasks WHERE ID = $id");
+        $nam = pg_fetch_row($nam);
         $text = stripslashes($nam[2]);
         $list = $nam[1];
-        $sel2 = mysql_query("SELECT project FROM tasklist WHERE ID = $list");
-        $project = mysql_fetch_row($sel2);
+        $sel2 = pg_query("SELECT project FROM tasklist WHERE ID = $list");
+        $project = pg_fetch_row($sel2);
         $project = $project[0];
         $nameproject = array($text, $project);
 

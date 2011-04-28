@@ -69,12 +69,12 @@ class search
 
     function searchProjects($query)
     {
-        $query = mysql_real_escape_string($query);
+        $query = pg_escape_string($query);
 
-        $sel = mysql_query("SELECT `ID`,`name`,`desc`,`status` FROM projekte WHERE `name` LIKE '%$query%' OR `desc` LIKE '%$query%' OR ID = '$query' HAVING status=1");
+        $sel = pg_query("SELECT ID,name,desc,status FROM projekte WHERE name LIKE '%$query%' OR desc LIKE '%$query%' OR ID = '$query' HAVING status=1");
 
         $projects = array();
-        while ($result = mysql_fetch_array($sel))
+        while ($result = pg_fetch_array($sel))
         {
             if (!empty($result))
             {
@@ -99,25 +99,25 @@ class search
 
     function searchMilestones($query, $project = 0)
     {
-        $query = mysql_real_escape_string($query);
+        $query = pg_escape_string($query);
         $project = (int) $project;
 
         if ($project > 0)
         {
-            $sel = mysql_query("SELECT `ID`,`name`,`desc`,`status`,`project` FROM milestones WHERE `name` LIKE '%$query%' OR `desc` LIKE '%$query%' HAVING project = $project AND status=1 ");
+            $sel = pg_query("SELECT ID,name,desc,status,project FROM milestones WHERE name LIKE '%$query%' OR desc LIKE '%$query%' HAVING project = $project AND status=1 ");
         }
         else
         {
-            $sel = mysql_query("SELECT `ID`,`name`,`desc`,`status`,`project` FROM milestones WHERE `name` LIKE '%$query%' OR `desc` LIKE '%$query%' HAVING status=1");
+            $sel = pg_query("SELECT ID,name,desc,status,project FROM milestones WHERE name LIKE '%$query%' OR desc LIKE '%$query%' HAVING status=1");
         }
 
         $milestones = array();
-        while ($result = mysql_fetch_array($sel))
+        while ($result = pg_fetch_array($sel))
         {
             if (!empty($result))
             {
-                $project = mysql_query("SELECT name FROM projekte WHERE ID = $result[project]");
-                $project = mysql_fetch_row($project);
+                $project = pg_query("SELECT name FROM projekte WHERE ID = $result[project]");
+                $project = pg_fetch_row($project);
                 $project = $project[0];
 
                 $result["pname"] = $project;
@@ -142,25 +142,25 @@ class search
 
     function searchMessage($query, $project = 0)
     {
-        $query = mysql_real_escape_string($query);
+        $query = pg_escape_string($query);
         $project = (int) $project;
 
         if ($project > 0)
         {
-            $sel = mysql_query("SELECT `ID`,`title`,`text`,`posted`,`user`,`username`,`project` FROM messages WHERE `title` LIKE '%$query%' OR `text` LIKE '%$query%' HAVING project = $project ");
+            $sel = pg_query("SELECT ID,title,text,posted,user,username,project FROM messages WHERE title LIKE '%$query%' OR text LIKE '%$query%' HAVING project = $project ");
         }
         else
         {
-            $sel = mysql_query("SELECT `ID`,`title`,`text`,`posted`,`user`,`username`,`project` FROM messages WHERE `title` LIKE '%$query%' OR `text` LIKE '%$query%'");
+            $sel = pg_query("SELECT ID,title,text,posted,user,username,project FROM messages WHERE title LIKE '%$query%' OR text LIKE '%$query%'");
         }
 
         $messages = array();
-        while ($result = mysql_fetch_array($sel))
+        while ($result = pg_fetch_array($sel))
         {
             if (!empty($result))
             {
-                $project = mysql_query("SELECT name FROM projekte WHERE ID = $result[project]");
-                $project = mysql_fetch_row($project);
+                $project = pg_query("SELECT name FROM projekte WHERE ID = $result[project]");
+                $project = pg_fetch_row($project);
                 $project = $project[0];
 
                 $result["pname"] = $project;
@@ -188,25 +188,25 @@ class search
 
     function searchTasks($query, $project = 0)
     {
-        $query = mysql_real_escape_string($query);
+        $query = pg_escape_string($query);
         $project = (int) $project;
 
         if ($project > 0)
         {
-            $sel = mysql_query("SELECT `ID`,`title`,`text`,`status`,`project` FROM tasks WHERE `title` LIKE '%$query%' OR `text` LIKE '%$query%' HAVING project = $project AND status=1");
+            $sel = pg_query("SELECT ID,title,text,status,project FROM tasks WHERE title LIKE '%$query%' OR text LIKE '%$query%' HAVING project = $project AND status=1");
         }
         else
         {
-            $sel = mysql_query("SELECT `ID`,`title`,`text`,`status`,`project` FROM tasks WHERE `title` LIKE '%$query%' OR `text` LIKE '%$query%' HAVING status=1");
+            $sel = pg_query("SELECT ID,title,text,status,project FROM tasks WHERE title LIKE '%$query%' OR text LIKE '%$query%' HAVING status=1");
         }
 
         $tasks = array();
-        while ($result = mysql_fetch_array($sel))
+        while ($result = pg_fetch_array($sel))
         {
             if (!empty($result))
             {
-                $project = mysql_query("SELECT name FROM projekte WHERE ID = $result[project]");
-                $project = mysql_fetch_row($project);
+                $project = pg_query("SELECT name FROM projekte WHERE ID = $result[project]");
+                $project = pg_fetch_row($project);
                 $project = $project[0];
 
                 $result["pname"] = $project;
@@ -231,25 +231,25 @@ class search
 
     function searchFiles($query, $project = 0)
     {
-        $query = mysql_real_escape_string($query);
+        $query = pg_escape_string($query);
         $project = (int) $project;
 
         if ($project > 0)
         {
-            $sel = mysql_query("SELECT `ID`,`name`,`desc`,`type`,`datei`,`title`,`project` FROM `files` WHERE `name` LIKE '%$query%' OR `desc` LIKE '%$query%' OR `title` LIKE '%$query%' HAVING project = $project");
+            $sel = pg_query("SELECT ID,name,desc,type,datei,title,project FROM files WHERE name LIKE '%$query%' OR desc LIKE '%$query%' OR title LIKE '%$query%' HAVING project = $project");
         }
         else
         {
-            $sel = mysql_query("SELECT `ID`,`name`,`desc`,`type`,`datei`,`title`,`project` FROM `files` WHERE `name` LIKE '%$query%' OR `desc` LIKE '%$query%' OR `title` LIKE '%$query%'");
+            $sel = pg_query("SELECT ID,name,desc,type,datei,title,project FROM files WHERE name LIKE '%$query%' OR desc LIKE '%$query%' OR title LIKE '%$query%'");
         }
 
         $files = array();
-        while ($result = mysql_fetch_array($sel))
+        while ($result = pg_fetch_array($sel))
         {
             if (!empty($result))
             {
-                $project = mysql_query("SELECT name FROM projekte WHERE ID = $result[project]");
-                $project = mysql_fetch_row($project);
+                $project = pg_query("SELECT name FROM projekte WHERE ID = $result[project]");
+                $project = pg_fetch_row($project);
                 $project = $project[0];
 
                 $result["pname"] = $project;
@@ -295,12 +295,12 @@ class search
 
     function searchUser($query)
     {
-        $query = mysql_real_escape_string($query);
+        $query = pg_escape_string($query);
 
-        $sel = mysql_query("SELECT `ID`,`email`,`name`,`avatar`,`lastlogin` FROM user WHERE name LIKE '%$query%'");
+        $sel = pg_query("SELECT ID,email,name,avatar,lastlogin FROM user WHERE name LIKE '%$query%'");
 
         $user = array();
-        while ($result = mysql_fetch_array($sel))
+        while ($result = pg_fetch_array($sel))
         {
             if (!empty($result))
             {

@@ -16,8 +16,8 @@ function __autoload($class_name)
 
 function chkproject($user, $project)
 {
-    $sel = @mysql_query("SELECT ID FROM projekte_assigned WHERE projekt = $project AND user = $user");
-    $chk = @mysql_fetch_row($sel);
+    $sel = @pg_query("SELECT ID FROM projekte_assigned WHERE projekt = $project AND user = $user");
+    $chk = @pg_fetch_row($sel);
     $chk = $chk[0];
 
     if ($chk != "")

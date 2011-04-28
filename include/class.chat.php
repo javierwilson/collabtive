@@ -43,12 +43,12 @@ class chat
     function post($content, $userto, $userto_id)
     {
         $content = strip_tags($content);
-        $content = mysql_real_escape_string($content);
-        $userto = mysql_real_escape_string($userto);
-        $userto_id = mysql_real_escape_string($userto_id);
+        $content = pg_escape_string($content);
+        $userto = pg_escape_string($userto);
+        $userto_id = pg_escape_string($userto_id);
         $now = time();
 
-        mysql_query("INSERT INTO chat (ID,time,ufrom,ufrom_id,userto,userto_id,text) VALUES ('','$now','$username','$userid','$userto','$userto_id','$content')");
+        pg_query("INSERT INTO chat (ID,time,ufrom,ufrom_id,userto,userto_id,text) VALUES ('','$now','$username','$userid','$userto','$userto_id','$content')");
     }
 
     function pull($userto_id)
@@ -61,9 +61,9 @@ class chat
             $start = 0;
         }
 
-        $sel = mysql_query("SELECT * FROM chat WHERE ufrom_id IN($userid,$userto_id) AND userto_id IN($userid,$userto_id) AND time > $start ORDER by time ASC");
+        $sel = pg_query("SELECT * FROM chat WHERE ufrom_id IN($userid,$userto_id) AND userto_id IN($userid,$userto_id) AND time > $start ORDER by time ASC");
 
-        while ($chat = mysql_fetch_array($sel))
+        while ($chat = pg_fetch_array($sel))
         {
             $date = date("H:i", $chat["time"]);
             echo "[$date] <b>$chat[ufrom]:</b> $chat[text]";
@@ -76,9 +76,9 @@ class chat
         $now = time();
         $now = $now - 20;
 
-        $sel = mysql_query("SELECT ufrom_id,ufrom FROM chat WHERE userto_id  = $userid AND time > $now");
+        $sel = pg_query("SELECT ufrom_id,ufrom FROM chat WHERE userto_id  = $userid AND time > $now");
 
-        while ($chk = mysql_fetch_row($sel))
+        while ($chk = pg_fetch_row($sel))
         {
             $cook = "chatwin" . $chk[0];
             if (!$_COOKIE[$cook])
@@ -87,7 +87,7 @@ class chat
             }
         }
         $mynow = time();
-        mysql_query("UPDATE user SET lastlogin='$mynow' WHERE ID = $userid");
+        pg_query("UPDATE user SET lastlogin='$mynow' WHERE ID = $userid");
     }
 }
 ?>

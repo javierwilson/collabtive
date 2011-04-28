@@ -244,8 +244,8 @@ if ($action == "add")
         $template->display("error.tpl");
         die();
     }
-    $sel = mysql_query("SELECT name FROM projekte WHERE ID = $id");
-    $pname = mysql_fetch_row($sel);
+    $sel = pg_query("SELECT name FROM projekte WHERE ID = $id");
+    $pname = pg_fetch_row($sel);
     $pname = $pname[0];
 
     $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true);
@@ -371,9 +371,9 @@ if ($action == "add")
 
     $totaltime = $tracker->getTotalTrackTime($track);
     $totaltime = str_replace(".", ",", $totaltime);
-    $id = mysql_real_escape_string($id);
-    $sel = mysql_query("SELECT name FROM user WHERE ID = $id");
-    $uname = mysql_fetch_array($sel);
+    $id = pg_escape_string($id);
+    $sel = pg_query("SELECT name FROM user WHERE ID = $id");
+    $uname = pg_fetch_array($sel);
     $uname = $uname[0];
 
     $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true);

@@ -39,18 +39,18 @@ class message
     function add($project, $title, $text, $tags, $user, $username, $replyto, $milestone)
     {
         $project = (int) $project;
-        $title = mysql_real_escape_string($title);
-        $text = mysql_real_escape_string($text);
-        $tags = mysql_real_escape_string($tags);
+        $title = pg_escape_string($title);
+        $text = pg_escape_string($text);
+        $tags = pg_escape_string($tags);
         $user = (int) $user;
-        $username = mysql_real_escape_string($username);
+        $username = pg_escape_string($username);
         $replyto = (int) $replyto;
         $milestone = (int) $milestone;
         $posted = time();
 
-        $sql = "INSERT INTO messages (`project`,`title`,`text`,`tags`,`posted`,`user`,`username`,`replyto`,`milestone`) VALUES ($project,'$title','$text','$tags','$posted',$user,'$username',$replyto,$milestone) ";
+        $sql = "INSERT INTO messages (project,title,text,tags,posted,user,username,replyto,milestone) VALUES ($project,'$title','$text','$tags','$posted',$user,'$username',$replyto,$milestone) ";
 
-        $ins = mysql_query($sql);
+        $ins = pg_query($sql);
 
         $insid = mysql_insert_id();
         if ($ins)
@@ -76,16 +76,16 @@ class message
     function edit($id, $title, $text, $tags)
     {
         $id = (int) $id;
-        $title = mysql_real_escape_string($title);
-        $text = mysql_real_escape_string($text);
-        $tags = mysql_real_escape_string($tags);
+        $title = pg_escape_string($title);
+        $text = pg_escape_string($text);
+        $tags = pg_escape_string($tags);
 
-        $upd = mysql_query("UPDATE messages SET title='$title', text='$text', tags='$tags' WHERE ID = $id");
+        $upd = pg_query("UPDATE messages SET title='$title', text='$text', tags='$tags' WHERE ID = $id");
 
         if ($upd)
         {
-            $proj = mysql_query("SELECT project FROM messages WHERE ID = $id");
-            $proj = mysql_fetch_row($proj);
+            $proj = pg_query("SELECT project FROM messages WHERE ID = $id");
+            $proj = pg_fetch_row($proj);
             $proj = $proj[0];
             $this->mylog->add($title, 'message', 2, $proj);
             return true;
@@ -106,12 +106,12 @@ class message
     {
         $id = (int) $id;
 
-        $msg = mysql_query("SELECT title,project FROM messages WHERE ID = $id");
-        $msg = mysql_fetch_row($msg);
+        $msg = pg_query("SELECT title,project FROM messages WHERE ID = $id");
+        $msg = pg_fetch_row($msg);
 
-        $del = mysql_query("DELETE FROM messages WHERE ID = $id LIMIT 1");
-        $del2 = mysql_query("DELETE FROM messages WHERE replyto = $id");
-        $del3 = mysql_query("DELETE FROM files_attached WHERE message = $id");
+        $del = pg_query("DELETE FROM messages WHERE ID = $id LIMIT 1");
+        $del2 = pg_query("DELETE FROM messages WHERE replyto = $id");
+        $del3 = pg_query("DELETE FROM files_attached WHERE message = $id");
         if ($del)
         {
             $this->mylog->add($msg[0], 'message', 3, $msg[1]);
@@ -133,27 +133,27 @@ class message
     {
         $id = (int) $id;
 
-        $sel = mysql_query("SELECT * FROM messages WHERE ID = $id LIMIT 1");
-        $message = mysql_fetch_array($sel,MYSQL_ASSOC);
+        $sel = pg_query("SELECT * FROM messages WHERE ID = $id LIMIT 1");
+        $message = pg_fetch_array($sel,PGSQL_ASSOC);
 
         $tagobj = new tags();
         $milesobj = new milestone();
         if (!empty($message))
         {
-            $replies = mysql_query("SELECT COUNT(*) FROM messages WHERE replyto = $id");
-            $replies = mysql_fetch_row($replies);
+            $replies = pg_query("SELECT COUNT(*) FROM messages WHERE replyto = $id");
+            $replies = pg_fetch_row($replies);
             $replies = $replies[0];
 
             $user = new user();
             $avatar = $user->getAvatar($message["user"]);
 
-            $sel = mysql_query("SELECT gender FROM user WHERE ID = $message[user]");
-            $ds = mysql_fetch_row($sel);
+            $sel = pg_query("SELECT gender FROM user WHERE ID = $message[user]");
+            $ds = pg_fetch_row($sel);
             $gender = $ds[0];
             $message["gender"] = $gender;
 
-            $project = mysql_query("SELECT name FROM projekte WHERE ID = $message[project]");
-            $project = mysql_fetch_row($project);
+            $project = pg_query("SELECT name FROM projekte WHERE ID = $message[project]");
+            $project = pg_fetch_row($project);
             $project = $project[0];
             $project["name"] = stripslashes($project["name"]);
             $message["pname"] = $project;
@@ -200,13 +200,13 @@ class message
     {
         $id = (int) $id;
 
-        $sel = mysql_query("SELECT ID FROM messages WHERE replyto = $id ORDER BY posted DESC");
+        $sel = pg_query("SELECT ID FROM messages WHERE replyto = $id ORDER BY posted DESC");
         $replies = array();
 
         $tagobj = new tags();
         $milesobj = new milestone();
         $user = new user();
-        while ($reply = mysql_fetch_array($sel))
+        while ($reply = pg_fetch_array($sel))
         {
             if (!empty($reply))
             {
@@ -229,9 +229,9 @@ class message
         $limit = (int) $limit;
 
         $userid = $_SESSION["userid"];
-        $sel3 = mysql_query("SELECT projekt FROM projekte_assigned WHERE user = $userid");
+        $sel3 = pg_query("SELECT projekt FROM projekte_assigned WHERE user = $userid");
         $prstring = "";
-        while ($upro = mysql_fetch_row($sel3))
+        while ($upro = pg_fetch_row($sel3))
         {
             $projekt = $upro[0];
             $prstring .= $projekt . ",";
@@ -240,12 +240,12 @@ class message
         $prstring = substr($prstring, 0, strlen($prstring)-1);
         if ($prstring)
         {
-            $sel1 = mysql_query("SELECT ID FROM messages WHERE project IN($prstring) ORDER BY posted DESC LIMIT $limit ");
+            $sel1 = pg_query("SELECT ID FROM messages WHERE project IN($prstring) ORDER BY posted DESC LIMIT $limit ");
             $messages = array();
 
             $tagobj = new tags();
             $milesobj = new milestone();
-            while ($message = mysql_fetch_array($sel1))
+            while ($message = pg_fetch_array($sel1))
             {
                 $themessage = $this->getMessage($message["ID"]);
                 array_push($messages, $themessage);
@@ -272,12 +272,12 @@ class message
         $project = (int) $project;
 
         $messages = array();
-        $sel1 = mysql_query("SELECT ID FROM messages WHERE project = $project AND replyto = 0 ORDER BY posted DESC");
+        $sel1 = pg_query("SELECT ID FROM messages WHERE project = $project AND replyto = 0 ORDER BY posted DESC");
 
         $tagobj = new tags();
         $milesobj = new milestone();
 
-        while ($message = mysql_fetch_array($sel1))
+        while ($message = pg_fetch_array($sel1))
         {
             $themessage = $this->getMessage($message["ID"]);
             array_push($messages, $themessage);
@@ -302,7 +302,7 @@ class message
         $myfile = new datei();
         if ($fid > 0)
         {
-            $ins = mysql_query("INSERT INTO files_attached (ID,file,message) VALUES ('',$fid,$mid)");
+            $ins = pg_query("INSERT INTO files_attached (ID,file,message) VALUES ('',$fid,$mid)");
         }
         else
         {
@@ -312,7 +312,7 @@ class message
             for($i = 1;$i <= $num;$i++)
             {
                 $fid = $myfile->upload("userfile$i", "files/" . CL_CONFIG . "/$id", $id);
-                $ins = mysql_query("INSERT INTO files_attached (ID,file,message) VALUES ('',$fid,$mid)");
+                $ins = pg_query("INSERT INTO files_attached (ID,file,message) VALUES ('',$fid,$mid)");
             }
         }
         if ($ins)
@@ -330,11 +330,11 @@ class message
         $msg = (int) $msg;
 
         $files = array();
-        $sel = mysql_query("SELECT file FROM files_attached WHERE message = $msg");
-        while ($file = mysql_fetch_row($sel))
+        $sel = pg_query("SELECT file FROM files_attached WHERE message = $msg");
+        while ($file = pg_fetch_row($sel))
         {
-            $sel2 = mysql_query("SELECT * FROM files WHERE ID = $file[0]");
-            $thisfile = mysql_fetch_array($sel2);
+            $sel2 = pg_query("SELECT * FROM files WHERE ID = $file[0]");
+            $thisfile = pg_fetch_array($sel2);
             $thisfile["type"] = str_replace("/", "-", $thisfile["type"]);
             if (isset($thisfile["desc"]))
             {

@@ -36,9 +36,9 @@ class timetracker
      */
     function add($user, $project, $task, $comment, $started, $ended, $logday = "")
     {
-        $started = mysql_real_escape_string($started);
-        $ended = mysql_real_escape_string($ended);
-        $comment = mysql_real_escape_string($comment);
+        $started = pg_escape_string($started);
+        $ended = pg_escape_string($ended);
+        $comment = pg_escape_string($comment);
         $username = $_SESSION['username'];
         $user = (int) $user;
         $project = (int) $project;
@@ -65,7 +65,7 @@ class timetracker
         {
             return false;
         }
-        $ins = mysql_query("INSERT INTO timetracker (user,project,task,comment,started,ended,hours,pstatus) VALUES ($user,$project,$task,'$comment','$started','$ended','$hours',0)");
+        $ins = pg_query("INSERT INTO timetracker (user,project,task,comment,started,ended,hours,pstatus) VALUES ($user,$project,$task,'$comment','$started','$ended','$hours',0)");
 
         if ($ins)
         {
@@ -92,7 +92,7 @@ class timetracker
      */
     function edit($id, $task, $comment, $started, $ended)
     {
-        $comment = mysql_real_escape_string($comment);
+        $comment = pg_escape_string($comment);
         $started = (int) $started;
         $ended = (int) $ended;
         $id = (int) $id;
@@ -107,7 +107,7 @@ class timetracker
         $hours = $hours / 3600;
         $hours = round($hours, 2);
 
-        $upd = mysql_query("UPDATE timetracker SET task='$task',comment='$comment',started='$started',ended='$ended',hours='$hours' WHERE ID = $id");
+        $upd = pg_query("UPDATE timetracker SET task='$task',comment='$comment',started='$started',ended='$ended',hours='$hours' WHERE ID = $id");
         if ($upd)
         {
             return true;
@@ -127,7 +127,7 @@ class timetracker
     {
         $id = (int) $id;
 
-        $del = mysql_query("DELETE FROM timetracker WHERE ID = $id");
+        $del = pg_query("DELETE FROM timetracker WHERE ID = $id");
         if ($del)
         {
             return true;
@@ -142,7 +142,7 @@ class timetracker
     {
         $pstatus = (int) $pstatus;
         $id = (int) $id;
-        $upd = mysql_query("UPDATE timetracker SET pstatus = $pstatus WHERE ID = $id");
+        $upd = pg_query("UPDATE timetracker SET pstatus = $pstatus WHERE ID = $id");
         if ($upd)
         {
             return true;
@@ -162,9 +162,9 @@ class timetracker
     {
         $id = (int) $id;
 
-        $sel = mysql_query("SELECT * FROM timetracker WHERE ID = $id");
+        $sel = pg_query("SELECT * FROM timetracker WHERE ID = $id");
         $track = array();
-        $track = mysql_fetch_array($sel);
+        $track = pg_fetch_array($sel);
 
         if (!empty($track))
         {
@@ -195,8 +195,8 @@ class timetracker
 
     function getUserTrack($user, $project = 0, $task = 0, $start = 0, $end = 0 , $lim = 50)
     {
-        $start = mysql_real_escape_string($start);
-        $end = mysql_real_escape_string($end);
+        $start = pg_escape_string($start);
+        $end = pg_escape_string($end);
         $user = (int) $user;
         $project = (int) $project;
         $lim = (int) $lim;
@@ -228,7 +228,7 @@ class timetracker
         }
         if ($num)
         {
-            $num = mysql_fetch_row(mysql_query($num));
+            $num = pg_fetch_row(pg_query($num));
             $num = $num[0];
         }
         else
@@ -247,12 +247,12 @@ class timetracker
         $limi = " LIMIT $start,$lim";
         $sql = $sql . $limi;
 
-        $sel = mysql_query($sql);
+        $sel = pg_query($sql);
         $track = array();
         $ttask = new task();
         if (isset($sel))
         {
-            while ($data = @mysql_fetch_array($sel))
+            while ($data = @pg_fetch_array($sel))
             {
                 $endstring = date("H:i", $data["ended"]);
                 $startstring = date("H:i", $data["started"]);
@@ -264,12 +264,12 @@ class timetracker
                     $data["tname"] = $tasks;
                 }
 
-                $pname = mysql_query("SELECT name FROM projekte WHERE ID = $data[project]");
-                $pname = mysql_fetch_row($pname);
+                $pname = pg_query("SELECT name FROM projekte WHERE ID = $data[project]");
+                $pname = pg_fetch_row($pname);
                 $pname = stripslashes($pname[0]);
 
-                $uname = mysql_query("SELECT name FROM user WHERE ID = $data[user]");
-                $uname = mysql_fetch_row($uname);
+                $uname = pg_query("SELECT name FROM user WHERE ID = $data[user]");
+                $uname = pg_fetch_row($uname);
                 $uname = stripslashes($uname[0]);
 
                 $data["endstring"] = $endstring;
@@ -295,8 +295,8 @@ class timetracker
 
     function getProjectTrack($project, $user = 0, $task = 0, $start = 0, $end = 0, $lim = 50)
     {
-        $start = mysql_real_escape_string($start);
-        $end = mysql_real_escape_string($end);
+        $start = pg_escape_string($start);
+        $end = pg_escape_string($end);
         $project = (int) $project;
         $user = (int) $user;
         $lim = (int) $lim;
@@ -328,7 +328,7 @@ class timetracker
         }
         if ($num)
         {
-            $num = mysql_fetch_row(mysql_query($num));
+            $num = pg_fetch_row(pg_query($num));
             $num = $num[0];
         }
         else
@@ -347,13 +347,13 @@ class timetracker
         $limi = " LIMIT $start,$lim ";
         $sql = $sql . $limi;
 
-        $sel = mysql_query($sql);
+        $sel = pg_query($sql);
 
         $track = array();
         $ttask = new task();
         if (isset($sel))
         {
-            while ($data = @mysql_fetch_array($sel))
+            while ($data = @pg_fetch_array($sel))
             {
                 $endstring = date("H:i", $data["ended"]);
                 $startstring = date("H:i", $data["started"]);
@@ -365,12 +365,12 @@ class timetracker
                     $data["tname"] = $tasks;
                 }
 
-                $pname = mysql_query("SELECT name FROM projekte WHERE ID = $data[project]");
-                $pname = mysql_fetch_row($pname);
+                $pname = pg_query("SELECT name FROM projekte WHERE ID = $data[project]");
+                $pname = pg_fetch_row($pname);
                 $pname = stripslashes($pname[0]);
 
-                $uname = mysql_query("SELECT name FROM user WHERE ID = $data[user]");
-                $uname = mysql_fetch_row($uname);
+                $uname = pg_query("SELECT name FROM user WHERE ID = $data[user]");
+                $uname = pg_fetch_row($uname);
                 $uname = stripslashes($uname[0]);
 
                 $data["endstring"] = $endstring;

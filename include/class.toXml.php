@@ -23,7 +23,7 @@ class toXml
 	/**
     * Convert array to complete XML document.
     * Accepts an associative array.
-    * Also accepts a numeric and associative indexed array (as for example returned by mysql_fetch_array()),
+    * Also accepts a numeric and associative indexed array (as for example returned by pg_fetch_array()),
     * but strips the numeric index from those.
     *
     * @param array $inarr Array to convert
@@ -57,7 +57,7 @@ class toXml
 	/**
     * Convert array to JSON.
     * Accepts an associative array.
-    * Also accepts a numeric and associative indexed array (as for example returned by mysql_fetch_array())
+    * Also accepts a numeric and associative indexed array (as for example returned by pg_fetch_array())
 	* This is a wrapper around PHPs json_encode()
     *
     * @param array $inarr Array to convert
@@ -72,7 +72,7 @@ class toXml
     * Private function that recursively converts an Array to XML.
     * Used by arrToXml()
     * Accepts an associative array.
-    * Also accepts a numeric and associative indexed array (as for example returned by mysql_fetch_array()),
+    * Also accepts a numeric and associative indexed array (as for example returned by pg_fetch_array()),
     * but strips the numeric index from those.
     *
     * @param array $inarr Array to convert
