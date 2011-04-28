@@ -1,0 +1,196 @@
+/*[fmt]A010-100B-3*/
+form.main
+{ display: block; margin: 0; line-height: normal; padding: 0;}
+
+form.main .row
+{ clear: both; padding: 4px 0 !important;}
+
+form.main .row-butn-top
+{/*Button top on forms*/
+ clear: both; height: 38px;}
+
+form.main .row-butn-bottom
+{/*Button bottom on forms*/
+ clear: both; padding: 12px 0 0;}
+
+form fieldset
+{ display: block; border: none; padding: 0; margin: 0;}
+
+form.main label
+{ width: 140px; float: left; padding-top: 4px; font-weight: bold;}
+
+form.main label:hover
+{ cursor: pointer;}
+
+form.main input
+{ float: left; margin-bottom: 8px; width: 307px; padding: 3px 4px;}
+
+/*in Userprofile*/
+.userwrapper form.main label
+{ height: auto; padding: 0;}
+
+.userwrapper form.main input, .userwrapper form.main select
+{ margin: 0;}
+
+/*## LOGIN - Form ################################*/
+.login form
+{ width: 254px !important; margin: 0 auto; font-weight: bold; text-align: left;}
+
+.login form .row
+{ padding: 5px 0; clear: left;}
+
+.login form label
+{ float: left; display: block; width: 30px; height: 23px; margin-right: 1px; background: url(../images/icons16x16.png) no-repeat !important;}
+
+.login .username
+{ background-position: 0px -747px !important;}
+
+.login .username:hover
+{ background-position: 0px -697px !important;}
+
+.login .pass
+{ background-position: 1px -1248px !important;}
+
+.login .pass:hover, .login .pass:focus
+{ background-position: 1px -1198px !important;}
+
+.login .keep, .login .keep-active
+{ background: url(../images/butn-check.png) no-repeat 0px 3px !important;}
+
+.login .keep-active, .login .keep:hover
+{ background-position: 0px -22px !important; color: #289530;}
+
+.login label:hover
+{ cursor: pointer;}
+
+.login label.keep-active:hover
+{ background-position: -102px 0;}
+
+.login form input
+{ float: left; width: 212px; font-size: 12px; padding: 2px;}
+
+.login form label.keep span, .login form label.keep-active span
+{ margin: 0 0 0 35px; float: left; width: 200px; padding: 4px;}
+
+.login form label.keep:hover span, .login form label.keep-active:hover span
+{ background-position: 0 -23px;}
+
+#stay
+{ visibility: hidden;}
+
+.loginbutn
+{ margin: 5px auto !important; float: right !important;}
+
+/*## SEARCH - Form (Sidebar)) ###############################*/
+#search
+{ position: relative; margin: 0;}
+
+#search .row .text, #choices ul
+{ float: left; width: 127px; margin-right: 1px;}
+
+#search button
+{ height: 24px; float: left; margin: 0; -moz-border-radius: 0px; -webkit-border-radius: 0px; width: auto; line-height: 1em; font-size: 12px; padding: 0 5px;}
+
+#choices ul
+{/*Autocompleter*/
+ width: 176px; height: auto; max-height: 300px; overflow-y: auto; overflow-x: hidden; float: left; padding: 0 0 1px; background: #EEF1F7; z-index: 12; position: relative;}
+
+#choices li
+{ width: 160px; height: 31px; line-height: 31px; background: #EEF1F7; padding: 2px; float: left; border-bottom: 1px solid #FEFEFE; font-size: 12px;}
+
+#choices li:hover
+{ cursor: pointer; background-position: 0 -36px;}
+
+#choices li img
+{ float: left; margin: 2px 0;}
+
+#indicator1
+{ position: absolute; top: 0; left: 134px; width: 34px; height: 23px; background: #3C556F;}
+
+#indicator1 img
+{ margin: 3px 9px 0;}
+
+/*## BUTTON ###############################*/
+button, button.loginbutn
+{ float: left; color: #EFF3F6; -moz-border-radius: 3px; -webkit-border-radius: 3px; font-size: 13px; font-weight: bold; margin: 0 5px 5px 0; white-space: nowrap; padding: 5px 10px; background: #4C7FC5 url(../images/bg_btn.png) repeat-x center center; border: 1px solid #234B96; overflow: visible; font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Arial, helvetica, sans-serif;}
+
+button.inner, button.inner-active, .row button
+{ float: left; color: #EFF3F6; -moz-border-radius: 3px; -webkit-border-radius: 3px; font-size: 11px; font-weight: bold; margin: 0 5px 5px 0; white-space: nowrap; padding: 3px 10px; background: url(../images/bg_btn_lite.png) repeat-x center center !important; border: 1px solid #99B3EA; overflow: visible; font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Arial, helvetica, sans-serif; cursor: pointer; position: relative;}
+
+.row-butn-bottom button
+{ font-size: 13px; font-weight: bold; margin: 0 5px 0 0; white-space: nowrap; padding: 4px 15px; background: url(../images/bg_btn.png) repeat-x center center; border: 1px solid #234B96; height: auto;}
+
+button:hover
+{ cursor: pointer; color: #FFFFFF !important; background: #2B57A0 url(../images/bg_btn_over.png) repeat-x center center;}
+
+button[disabled]
+{ opacity: .6; filter: alpha(opacity=60); -moz-opacity: .6;}
+
+button[disabled]:hover
+{ opacity: .8; filter: alpha(opacity=80); -moz-opacity: .8;}
+
+form.main select
+{ width: 315px; border: 1px solid #000000; float: left; margin-bottom: 6px; padding: 2px 0 0;}
+
+form.main option
+{ background: #FFF;}
+
+/*## FILES ###############################*/
+.fileinput
+{ position: relative; float: left; width: 315px;}
+
+.fileinput table
+{ width: 315px;}
+
+.block .fileinput table td, .blockwrapper .fileinput table td
+{ padding: 0; border: none;}
+
+.block .fileinput table td.choose, .blockwrapper .fileinput table td.choose
+{ width: 10%; padding: 0 0 0 13px;}
+
+.faux
+{ position: absolute; top: 0px; left: 0px; z-index: 1;}
+
+.fileinput button
+{ margin: 0px 0 0; float: right;}
+
+form.main input.file
+{ position: relative; -moz-opacity: 0; filter: alpha(opacity: 0); opacity: 0; z-index: 2; margin-bottom: 8px;}
+
+form.main input.text-file
+{ width: 100%; margin: 0;}
+
+form.main textarea
+{ width: 307px; padding: 2px 3px; background: #FFF url(../gfx/input_text_bg.png) repeat-x; border: 1px solid #000000; margin-bottom: 6px;}
+
+form.main .checkbox
+{ width: auto; float: left; margin: 1px 25px 0 0; border: none;}
+
+form.main .radio
+{ float: left; width: auto; border: none; position: relative; top: 6px; margin: 0;}
+
+form.main .input_error
+{ border-color: #BE4C43; color: #BE4C43;}
+
+/*## Editor ## start*/
+form.main .row .editor
+{ float: left; margin-bottom: 6px; border: 1px solid #000;}
+
+/*## Editor ## end
+
+in: 1px 25px 0 0;
+
+border:none;
+
+}*/
+form.main .radio
+{ float: left; width: auto; border: none; position: relative; top: 6px; margin: 0;}
+
+form.main .input_error
+{ border-color: #BE4C43; color: #BE4C43;}
+
+/*## Editor ## start*/
+form.main .row .editor
+{ float: left; margin-bottom: 6px; border: 1px solid #000;}
+
+/*## Editor ## end*/

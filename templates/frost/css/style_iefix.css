@@ -1,0 +1,39 @@
+/*[fmt]A010-100B-3*/
+#sitebody
+{ min-height: 100%;}
+
+* html #sitebody
+{ height: 100%;}
+
+#contentwrapper
+{ _width: 988px; margin: 0 auto 26px;/*same as footer-height (for IE 7)*/
+}
+
+.statusbar_b, .complete
+{ zoom: 1; float: left; margin-bottom: 0; padding: 0; line-height: 1px; overflow: hidden;}
+
+.complete
+{ height: 100%;}
+
+/*# Form Button #*/
+.butn button
+{ /*[disabled]height:24px;*/ /*[disabled]line-height:21px;*/ /*[disabled]padding:0 8px 0px 3px;*/ /*[disabled]overflow:visible;*/ /*[disabled]width:auto;*/}
+
+/*# UL LI Tables #*/
+ul.tabs li, ul.tabs li a, ul.tabs li span
+{ float: left; cursor: pointer;}
+
+.content_left ul li
+{ float: left;}
+
+/*# Calender #*/
+div#calendar table
+{ border-collapse: collapse;}
+
+/*Datepicker*/
+.datepick .picker
+{ width: 187px; top: -239px;}
+
+a.butn_check
+{ zoom: 1; line-height: 20px;}
+
